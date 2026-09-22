@@ -1838,11 +1838,11 @@ function getInputs() {
       ) || 0,
 
     down:
-      Number(
-        document
-          .getElementById("sDown")
-          .value
-      ) || 0,
+  Number(
+    document
+      .getElementById("sValue")
+      .value
+  ) * 0.30 || 0,
 
     months:
       Number(
@@ -2029,7 +2029,7 @@ function simulate() {
 
 
   const financed =
-    x.value - x.down;
+  x.value;
 
 
   const rate =
