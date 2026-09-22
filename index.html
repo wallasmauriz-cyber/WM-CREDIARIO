@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -2374,127 +2375,96 @@ function simulate() {
 
 }
 
-    
+<!-- =========================
+     PARTE 4 — FINAL DO SISTEMA
+     ========================= -->
+
+<script>
+
 /* =====================================
    SALVAR VENDA
-===================================== */
+   ===================================== */
 
-function saveSale() {
+function saveSale(){
 
-  if (!lastSimulation) {
+  const x = getInputs();
 
-    toast(
-      "Simule primeiro."
-    );
-
+  if(!x.client){
+    toast("Informe o cliente.");
     return;
-
   }
 
+  if(!x.product){
+    toast("Informe o produto.");
+    return;
+  }
 
-  const x =
-    lastSimulation;
+  if(!x.value || Number(x.value) <= 0){
+    toast("Informe o valor do produto.");
+    return;
+  }
 
-
-  const id =
-    "WM-" +
-    Date.now()
-      .toString()
-      .slice(-8);
-
+  const id = "V" + Date.now();
 
   const sale = {
-
     id,
-
-    created:
-      new Date().toISOString(),
+    created: new Date().toISOString(),
 
     ...x,
 
-    inst:
-      x.inst.map(
-        function(row) {
+    value: Number(x.value || 0),
+    entry: Number(x.entry || 0),
+    term: Number(x.term || 0),
+    customerRate: Number(x.customerRate || 0),
+    advanceRate: Number(x.advanceRate || 0),
+    wmCost: Number(x.wmCost || 0),
+    fine: Number(x.fine || 0),
+    interest: Number(x.interest || 0),
 
-          return {
-
-            ...row,
-
-            d:
-              row.d.toISOString()
-
-          };
-
-        }
-      )
-
+    inst: (x.inst || []).map(function(p, i){
+      return {
+        n: i + 1,
+        due: p.due,
+        amount: Number(p.amount || 0),
+        paid: false
+      };
+    })
   };
 
+  db.sales.push(sale);
 
-  db.sales.unshift(
-    sale
-  );
+  saveDB();
 
+  lastSimulation = sale;
 
-  if (
-    saveDB()
-  ) {
+  refresh();
 
-    toast(
-      "Venda salva: " + id
-    );
+  toast("Venda salva com sucesso!");
 
-    showPage(
-      "sales"
-    );
-
-  }
-
+  showPage("dashboard");
 }
-
 
 
 /* =====================================
    CONTRATO
-===================================== */
+   ===================================== */
 
-function contractHtml(x) {
+function contractHtml(x){
 
-  const frequency =
-    x.freq === "weekly"
-      ? "Semanal"
-      : x.freq === "biweekly"
-        ? "Quinzenal"
-        : "Mensal";
+  const parcelas = x.inst || [];
 
+  const totalParcelas = parcelas.reduce(function(sum, p){
+    return sum + Number(p.amount || 0);
+  }, 0);
 
-  const birth =
-    x.birthDate
-      ? new Date(
-          x.birthDate +
-          "T00:00:00"
-        ).toLocaleDateString(
-          "pt-BR"
-        )
-      : "-";
+  const entrada = Number(x.entry || 0);
+  const valorProduto = Number(x.value || 0);
 
-
-  const address =
-    [
-      x.street,
-      x.number,
-      x.complement,
-      x.neighborhood,
-      x.city,
-      x.state,
-      x.cep
-    ]
-      .filter(Boolean)
-      .join(", ");
-
+  const jurosCliente = Number(x.customerRate || 0);
+  const multa = Number(x.fine || 0);
+  const jurosAtraso = Number(x.interest || 0);
 
   return `
-
 <!DOCTYPE html>
 
 <html lang="pt-BR">
@@ -2504,82 +2474,111 @@ function contractHtml(x) {
 <meta charset="UTF-8">
 
 <title>
-Contrato - ${esc(x.client)}
+Contrato - ${esc(x.client || "")}
 </title>
 
 <style>
 
-body{
-
-  font-family:Arial,
-  sans-serif;
-
-  padding:35px;
-
-  line-height:1.55;
-
-  color:#111;
-
+*{
+  box-sizing:border-box;
 }
 
-h1,
-h2{
-
-  text-align:center;
-
+body{
+  font-family:Arial,Helvetica,sans-serif;
+  color:#111;
+  margin:40px;
+  font-size:13px;
+  line-height:1.55;
 }
 
 h1{
+  text-align:center;
+  margin:0;
+  font-size:23px;
+}
 
-  margin-bottom:5px;
+h2{
+  text-align:center;
+  font-size:17px;
+  margin:5px 0 25px;
+}
 
+h3{
+  font-size:14px;
+  margin-top:24px;
+  border-bottom:1px solid #bbb;
+  padding-bottom:5px;
+}
+
+.empresa{
+  text-align:center;
+  margin-bottom:25px;
+}
+
+.box{
+  border:1px solid #aaa;
+  padding:13px;
+  margin:10px 0;
+  border-radius:4px;
+}
+
+.linha{
+  margin:5px 0;
+}
+
+.label{
+  font-weight:bold;
 }
 
 table{
-
   width:100%;
-
   border-collapse:collapse;
-
-  margin-top:20px;
-
+  margin-top:12px;
 }
 
 th,
 td{
-
   border:1px solid #999;
+  padding:7px;
+}
 
-  padding:8px;
+th{
+  background:#eee;
+}
 
-  text-align:left;
-
+.valor{
+  text-align:right;
 }
 
 .assinaturas{
-
   display:flex;
-
-  gap:60px;
-
-  margin-top:80px;
-
+  justify-content:space-between;
+  gap:50px;
+  margin-top:90px;
 }
 
 .assinatura{
-
-  flex:1;
-
+  width:45%;
   text-align:center;
+}
 
+.linha-assinatura{
+  border-top:1px solid #111;
+  margin-top:45px;
+  padding-top:6px;
+}
+
+.rodape{
+  margin-top:40px;
+  font-size:10px;
+  color:#666;
+  text-align:center;
 }
 
 @media print{
 
   body{
-
-    padding:20px;
-
+    margin:20mm;
   }
 
 }
@@ -2588,21 +2587,29 @@ td{
 
 </head>
 
-
 <body>
 
 
-<h1>
-${esc(db.settings.store)}
-</h1>
+<div class="empresa">
+
+  <h1>
+    ${esc(db.settings.store || "WM ELETRÔNICOS")}
+  </h1>
+
+  <h2>
+    CONTRATO DE COMPRA E VENDA PARCELADA
+  </h2>
+
+</div>
 
 
-<h2>
-CONTRATO DE VENDA PARCELADA
-</h2>
+<p>
 
+Pelo presente instrumento particular, as partes abaixo identificadas
+declaram celebrar o presente contrato de compra e venda parcelada,
+mediante as condições estabelecidas neste documento.
 
-<hr>
+</p>
 
 
 <h3>
@@ -2610,32 +2617,54 @@ CONTRATO DE VENDA PARCELADA
 </h3>
 
 
-<p>
+<div class="box">
 
-<b>Nome:</b>
-${esc(x.client)}
+  <div class="linha">
+    <span class="label">Nome:</span>
+    ${esc(x.client || "-")}
+  </div>
 
-<br>
+  <div class="linha">
+    <span class="label">CPF:</span>
+    ${esc(x.cpf || "-")}
+  </div>
 
-<b>CPF:</b>
-${esc(x.cpf || "-")}
+  <div class="linha">
+    <span class="label">WhatsApp:</span>
+    ${esc(x.whatsapp || "-")}
+  </div>
 
-<br>
+  <div class="linha">
+    <span class="label">Data de nascimento:</span>
+    ${esc(x.birth || "-")}
+  </div>
 
-<b>WhatsApp:</b>
-${esc(x.phone || "-")}
+  <div class="linha">
+    <span class="label">CEP:</span>
+    ${esc(x.cep || "-")}
+  </div>
 
-<br>
+  <div class="linha">
+    <span class="label">Endereço:</span>
+    ${esc(x.street || "-")}, ${esc(x.number || "-")}
+  </div>
 
-<b>Data de nascimento:</b>
-${birth}
+  <div class="linha">
+    <span class="label">Complemento:</span>
+    ${esc(x.complement || "-")}
+  </div>
 
-<br>
+  <div class="linha">
+    <span class="label">Bairro:</span>
+    ${esc(x.neighborhood || "-")}
+  </div>
 
-<b>Endereço:</b>
-${esc(address || "-")}
+  <div class="linha">
+    <span class="label">Cidade/UF:</span>
+    ${esc(x.city || "-")} / ${esc(x.state || "-")}
+  </div>
 
-</p>
+</div>
 
 
 <h3>
@@ -2643,55 +2672,64 @@ ${esc(address || "-")}
 </h3>
 
 
-<p>
+<div class="box">
 
-<b>Produto:</b>
-${esc(x.product || "-")}
+  <div class="linha">
+    <span class="label">Produto:</span>
+    ${esc(x.product || "-")}
+  </div>
 
-<br>
+  <div class="linha">
+    <span class="label">IMEI:</span>
+    ${esc(x.imei || "-")}
+  </div>
 
-<b>IMEI:</b>
-${esc(x.imei || "-")}
+  <div class="linha">
+    <span class="label">Valor do produto:</span>
+    ${money(valorProduto)}
+  </div>
 
-<br>
-
-<b>Valor do produto:</b>
-${money(x.value)}
-
-<br>
-
-<b>Entrada:</b>
-${money(x.down)}
-
-<br>
-
-<b>Saldo financiado:</b>
-${money(x.financed)}
-
-</p>
+</div>
 
 
 <h3>
-3. FORMA DE PAGAMENTO
+3. CONDIÇÕES DE PAGAMENTO
 </h3>
 
 
-<p>
+<div class="box">
 
-<b>Prazo:</b>
-${x.months} meses
+  <div class="linha">
+    <span class="label">Valor da entrada:</span>
+    ${money(entrada)}
+  </div>
 
-<br>
+  <div class="linha">
+    <span class="label">Valor financiado:</span>
+    ${money(Math.max(valorProduto - entrada,0))}
+  </div>
 
-<b>Periodicidade:</b>
-${frequency}
+  <div class="linha">
+    <span class="label">Quantidade de parcelas:</span>
+    ${parcelas.length}
+  </div>
 
-<br>
+  <div class="linha">
+    <span class="label">Periodicidade:</span>
+    ${esc(x.periodicity || "-")}
+  </div>
 
-<b>Quantidade de parcelas:</b>
-${x.n}
+  <div class="linha">
+    <span class="label">Taxa aplicada ao cliente:</span>
+    ${jurosCliente.toFixed(2)}%
+  </div>
 
-</p>
+</div>
+
+
+<h3>
+4. CRONOGRAMA DE PAGAMENTO
+</h3>
 
 
 <table>
@@ -2700,21 +2738,21 @@ ${x.n}
 
 <tr>
 
-<th>
-Parcela
-</th>
+  <th>
+    Parcela
+  </th>
 
-<th>
-Vencimento
-</th>
+  <th>
+    Vencimento
+  </th>
 
-<th>
-Valor
-</th>
+  <th>
+    Valor
+  </th>
 
-<th>
-Status
-</th>
+  <th>
+    Status
+  </th>
 
 </tr>
 
@@ -2723,92 +2761,291 @@ Status
 
 <tbody>
 
-${(x.inst || [])
-  .map(
-    function(row) {
+${
+  parcelas.length
 
-      return `
+  ?
 
-<tr>
+  parcelas.map(function(p,i){
 
-<td>
-${row.n}
-</td>
+    const status = p.paid
+      ? "PAGA"
+      : "PENDENTE";
 
-<td>
-${new Date(
-  row.d
-).toLocaleDateString("pt-BR")}
-</td>
+    return `
 
-<td>
-${money(row.value)}
-</td>
+      <tr>
 
-<td>
-${esc(row.status || "A vencer")}
-</td>
+        <td>
+          ${i + 1}
+        </td>
 
-</tr>
+        <td>
+          ${esc(p.due || "-")}
+        </td>
 
-`;
+        <td class="valor">
+          ${money(Number(p.amount || 0))}
+        </td>
 
-    }
-  )
-  .join("")}
+        <td>
+          ${status}
+        </td>
+
+      </tr>
+
+    `;
+
+  }).join("")
+
+  :
+
+  `
+
+    <tr>
+
+      <td colspan="4">
+        Nenhuma parcela cadastrada.
+      </td>
+
+    </tr>
+
+  `
+}
 
 </tbody>
 
 </table>
 
 
+<div class="box">
+
+  <div class="linha">
+
+    <span class="label">
+      Total das parcelas:
+    </span>
+
+    ${money(totalParcelas)}
+
+  </div>
+
+</div>
+
+
 <h3>
-4. ATRASO
+5. OBRIGAÇÃO DE PAGAMENTO
 </h3>
 
 
 <p>
 
-Em caso de atraso no pagamento,
-poderão ser aplicados os encargos
-previstos na contratação,
-observados os limites legais
-aplicáveis.
-
-</p>
-
-
-<h3>
-5. DECLARAÇÃO
-</h3>
-
-
-<p>
-
-O comprador declara que recebeu
-as informações referentes ao
-produto, aos valores, ao prazo e
-às condições de pagamento,
-declarando estar de acordo com
-os dados apresentados neste
+O COMPRADOR declara estar ciente de que deverá efetuar o pagamento
+das parcelas nas respectivas datas de vencimento indicadas neste
 contrato.
 
 </p>
 
+<p>
+
+O não pagamento de qualquer parcela na data de vencimento poderá
+caracterizar inadimplemento da obrigação assumida.
+
+</p>
+
 
 <h3>
-6. DADOS PESSOAIS
+6. INADIMPLEMENTO E PROTESTO
 </h3>
 
 
 <p>
 
-Os dados pessoais fornecidos
-serão utilizados para cadastro,
-formalização, execução,
-acompanhamento e cobrança da
-venda, observada a legislação
-aplicável, inclusive a LGPD.
+O COMPRADOR declara estar ciente de que o não pagamento de qualquer
+parcela na data de vencimento caracteriza inadimplemento da obrigação
+assumida.
+
+</p>
+
+<p>
+
+Em caso de inadimplência, a WM ELETRÔNICOS poderá adotar as medidas
+de cobrança cabíveis para recebimento do débito, observada a
+legislação aplicável.
+
+</p>
+
+<p>
+
+Persistindo o débito, o título ou documento representativo da
+obrigação poderá ser encaminhado a protesto perante o Tabelionato
+de Protesto competente, observados os requisitos e procedimentos
+previstos na legislação vigente.
+
+</p>
+
+<p>
+
+O COMPRADOR declara estar ciente de que o protesto poderá gerar
+restrições decorrentes da existência do débito, conforme a legislação
+aplicável.
+
+</p>
+
+
+<h3>
+7. VENCIMENTO ANTECIPADO
+</h3>
+
+
+<p>
+
+O inadimplemento das obrigações assumidas neste contrato poderá,
+quando permitido pela legislação aplicável e observadas as condições
+contratuais, ensejar o vencimento antecipado do saldo devedor,
+tornando exigível o saldo remanescente da obrigação.
+
+</p>
+
+<p>
+
+A adoção de medidas de cobrança observará os limites, requisitos e
+procedimentos previstos na legislação vigente.
+
+</p>
+
+
+<h3>
+8. ENCARGOS POR ATRASO
+</h3>
+
+
+<p>
+
+Em caso de atraso no pagamento, poderão ser aplicados os encargos
+previstos nas condições da venda, observados os limites e requisitos
+estabelecidos pela legislação aplicável.
+
+</p>
+
+
+<div class="box">
+
+  <div class="linha">
+
+    <span class="label">
+      Multa informada:
+    </span>
+
+    ${multa.toFixed(2)}%
+
+  </div>
+
+
+  <div class="linha">
+
+    <span class="label">
+      Juros de atraso informado:
+    </span>
+
+    ${jurosAtraso.toFixed(2)}% ao mês
+
+  </div>
+
+</div>
+
+
+<h3>
+9. ENTREGA E CONFERÊNCIA DO PRODUTO
+</h3>
+
+
+<p>
+
+O COMPRADOR declara que recebeu o produto descrito neste contrato,
+tendo tido a oportunidade de conferir suas características,
+funcionamento e estado de conservação no momento da entrega,
+quando aplicável.
+
+</p>
+
+<p>
+
+O COMPRADOR declara também ter recebido as informações necessárias
+sobre o produto e suas condições de garantia, quando existente.
+
+</p>
+
+
+<h3>
+10. RESPONSABILIDADE PELAS INFORMAÇÕES
+</h3>
+
+
+<p>
+
+O COMPRADOR declara que todas as informações fornecidas para a
+realização da venda são verdadeiras, completas e atualizadas,
+responsabilizando-se pela veracidade das informações prestadas.
+
+</p>
+
+
+<h3>
+11. DADOS PESSOAIS
+</h3>
+
+
+<p>
+
+Os documentos e dados pessoais fornecidos pelo comprador serão
+utilizados para cadastro, análise, formalização da venda, controle
+financeiro, emissão de documentos e demais procedimentos relacionados
+à operação, observada a legislação aplicável, inclusive a Lei Geral
+de Proteção de Dados Pessoais (LGPD).
+
+</p>
+
+
+<h3>
+12. DECLARAÇÃO DAS PARTES
+</h3>
+
+
+<p>
+
+As partes declaram que leram o presente instrumento, compreenderam
+suas condições e concordam com as informações nele registradas.
+
+</p>
+
+<p>
+
+O presente documento representa o registro das condições comerciais
+da venda realizada entre as partes.
+
+</p>
+
+
+<h3>
+13. LOCAL E DATA
+</h3>
+
+
+<p>
+
+Local:
+
+____________________________________________________________
+
+</p>
+
+
+<p>
+
+Data:
+
+______ / ______ / __________
 
 </p>
 
@@ -2816,2564 +3053,564 @@ aplicável, inclusive a LGPD.
 <div class="assinaturas">
 
 
-<div class="assinatura">
+  <div class="assinatura">
 
-____________________________________
+    <div class="linha-assinatura">
 
-<br>
+      ${esc(x.client || "COMPRADOR")}
 
-<b>COMPRADOR(A)</b>
+    </div>
 
-<br>
+    <div>
 
-${esc(x.client)}
+      CPF: ${esc(x.cpf || "-")}
+
+    </div>
+
+    <div>
+
+      COMPRADOR
+
+    </div>
+
+  </div>
+
+
+  <div class="assinatura">
+
+    <div class="linha-assinatura">
+
+      ${esc(db.settings.store || "WM ELETRÔNICOS")}
+
+    </div>
+
+    <div>
+
+      REPRESENTANTE DA EMPRESA
+
+    </div>
+
+  </div>
+
 
 </div>
 
 
-<div class="assinatura">
+<div class="rodape">
 
-____________________________________
-
-<br>
-
-<b>${esc(db.settings.store)}</b>
+  Documento gerado pelo sistema WM Crediário.
 
 </div>
-
-
-</div>
-
-
-<p style="margin-top:60px">
-
-<b>Data:</b>
-____/____/________
-
-</p>
 
 
 </body>
 
 </html>
-
 `;
 
 }
 
 
+/* =====================================
+   IMPRIMIR CONTRATO
+   ===================================== */
 
-function openContractWindow(
-  html
-) {
+function printContract(){
 
-  const win =
-    window.open(
-      "",
-      "_blank"
-    );
+  if(!lastSimulation){
 
-
-  if (!win) {
-
-    toast(
-      "O navegador bloqueou o contrato. Permita pop-ups."
-    );
+    toast("Faça uma simulação ou salve uma venda primeiro.");
 
     return;
 
   }
 
+  const win = window.open("", "_blank");
+
+  if(!win){
+
+    toast("Permita a abertura de novas janelas para imprimir.");
+
+    return;
+
+  }
 
   win.document.open();
 
   win.document.write(
-    html
+    contractHtml(lastSimulation)
   );
 
   win.document.close();
 
+  setTimeout(function(){
 
-  setTimeout(
-    function() {
+    win.focus();
 
-      win.print();
+    win.print();
 
-    },
-    600
-  );
+  },500);
 
 }
-
-
-
-function printContractFromSimulation() {
-
-  if (!lastSimulation) {
-
-    toast(
-      "Simule primeiro."
-    );
-
-    return;
-
-  }
-
-
-  openContractWindow(
-    contractHtml(
-      lastSimulation
-    )
-  );
-
-}
-
-
-
-function printContractBySale(
-  id
-) {
-
-  const sale =
-    db.sales.find(
-      function(item) {
-
-        return item.id === id;
-
-      }
-    );
-
-
-  if (!sale) {
-
-    toast(
-      "Venda não encontrada."
-    );
-
-    return;
-
-  }
-
-
-  const data = {
-
-    ...sale,
-
-    inst:
-      (sale.inst || [])
-        .map(
-          function(row) {
-
-            return {
-
-              ...row,
-
-              d:
-                new Date(row.d)
-
-            };
-
-          }
-        )
-
-  };
-
-
-  openContractWindow(
-    contractHtml(
-      data
-    )
-  );
-
-}
-
 
 
 /* =====================================
    LIMPAR VENDA
-===================================== */
+   ===================================== */
 
-function clearSale() {
+function clearSale(){
 
   const ids = [
-
-    "sClient",
-    "sCpf",
-    "sPhone",
-    "sBirthDate",
-    "sCep",
-    "sStreet",
-    "sNumber",
-    "sComplement",
-    "sNeighborhood",
-    "sCity",
-    "sState",
-    "sImei"
-
+    "client",
+    "cpf",
+    "whatsapp",
+    "birth",
+    "cep",
+    "street",
+    "number",
+    "complement",
+    "neighborhood",
+    "city",
+    "state",
+    "product",
+    "imei",
+    "value",
+    "entry",
+    "term",
+    "periodicity",
+    "customerRate",
+    "advanceRate",
+    "wmCost",
+    "fine",
+    "interest"
   ];
 
+  ids.forEach(function(id){
 
-  ids.forEach(
-    function(id) {
+    const el = document.getElementById(id);
 
-      document
-        .getElementById(id)
-        .value = "";
-
+    if(el){
+      el.value = "";
     }
-  );
 
+  });
 
-  document
-    .getElementById("sDocument")
-    .value = "";
+  const photo = document.getElementById("documentPhoto");
 
+  if(photo){
+    photo.value = "";
+  }
 
-  document
-    .getElementById("sDocument")
-    .dataset.image = "";
+  const preview = document.getElementById("documentPreview");
 
+  if(preview){
+    preview.innerHTML = "";
+  }
 
-  document
-    .getElementById("documentPreview")
-    .style.display = "none";
+  const simulation = document.getElementById("simulation");
 
-
-  document
-    .getElementById("result")
-    .innerHTML = `
-
-      <div class="muted">
-
-        Preencha os dados
-        e clique em Simular.
-
-      </div>
-
-    `;
-
-
-  document
-    .getElementById("schedule")
-    .innerHTML = `
-
-      <div class="muted">
-
-        A simulação aparecerá aqui.
-
-      </div>
-
-    `;
-
+  if(simulation){
+    simulation.innerHTML = "";
+  }
 
   lastSimulation = null;
 
-  toast(
-    "Formulário limpo."
-  );
-
 }
-
 
 
 /* =====================================
    FOTO DO DOCUMENTO
-===================================== */
+   ===================================== */
 
-function setupDocumentPhoto() {
+function setupDocumentPhoto(){
 
   const input =
-    document.getElementById(
-      "sDocument"
-    );
+    document.getElementById("documentPhoto");
 
+  if(!input) return;
 
-  input.addEventListener(
-    "change",
-    function() {
+  input.addEventListener("change",function(){
 
-      const file =
-        input.files &&
-        input.files[0];
+    const file = this.files && this.files[0];
 
+    if(!file) return;
 
-      if (!file) return;
+    const reader = new FileReader();
 
+    reader.onload = function(e){
 
-      if (
-        !file.type.startsWith(
-          "image/"
-        )
-      ) {
+      const preview =
+        document.getElementById("documentPreview");
 
-        toast(
-          "Escolha uma imagem."
-        );
+      if(preview){
 
-        return;
+        preview.innerHTML = `
+          <img
+            src="${e.target.result}"
+            style="
+              max-width:100%;
+              max-height:260px;
+              border-radius:12px;
+              margin-top:10px;
+            "
+          >
+        `;
 
       }
 
+      toast("Documento carregado.");
 
-      const reader =
-        new FileReader();
+    };
 
+    reader.readAsDataURL(file);
 
-      reader.onload =
-        function(event) {
-
-          const image =
-            new Image();
-
-
-          image.onload =
-            function() {
-
-              const maxWidth =
-                1000;
-
-
-              let width =
-                image.width;
-
-
-              let height =
-                image.height;
-
-
-              if (
-                width >
-                maxWidth
-              ) {
-
-                height =
-                  height *
-                  maxWidth /
-                  width;
-
-                width =
-                  maxWidth;
-
-              }
-
-
-              const canvas =
-                document.createElement(
-                  "canvas"
-                );
-
-
-              canvas.width =
-                width;
-
-
-              canvas.height =
-                height;
-
-
-              const ctx =
-                canvas.getContext(
-                  "2d"
-                );
-
-
-              ctx.drawImage(
-                image,
-                0,
-                0,
-                width,
-                height
-              );
-
-
-              const compressed =
-                canvas.toDataURL(
-                  "image/jpeg",
-                  0.70
-                );
-
-
-              input.dataset.image =
-                compressed;
-
-
-              document
-                .getElementById(
-                  "documentPreviewImg"
-                )
-                .src =
-                compressed;
-
-
-              document
-                .getElementById(
-                  "documentPreview"
-                )
-                .style.display =
-                "block";
-
-
-              toast(
-                "Documento carregado."
-              );
-
-            };
-
-
-          image.src =
-            event.target.result;
-
-        };
-
-
-      reader.readAsDataURL(
-        file
-      );
-
-    }
-  );
+  });
 
 }
-
 
 
 /* =====================================
    STATUS DAS PARCELAS
-===================================== */
+   ===================================== */
 
-function updateOverdueStatuses() {
+function updateOverdueStatuses(){
 
   const today =
     new Date();
 
+  (db.sales || []).forEach(function(sale){
 
-  today.setHours(
-    0,
-    0,
-    0,
-    0
-  );
+    (sale.inst || []).forEach(function(p){
 
+      if(p.paid){
+        p.status = "paid";
+        return;
+      }
 
-  let changed =
-    false;
+      if(!p.due){
+        p.status = "pending";
+        return;
+      }
 
+      const due =
+        new Date(p.due + "T23:59:59");
 
-  db.sales.forEach(
-    function(sale) {
+      if(due < today){
 
-      (
-        sale.inst || []
-      ).forEach(
-        function(row) {
+        p.status = "overdue";
 
-          if (
-            row.status ===
-            "Pago"
-          ) {
+      }else{
 
-            return;
+        p.status = "pending";
 
-          }
+      }
 
+    });
 
-          const date =
-            new Date(
-              row.d
-            );
+  });
 
-
-          date.setHours(
-            0,
-            0,
-            0,
-            0
-          );
-
-
-          const status =
-            date < today
-              ? "Vencida"
-              : "A vencer";
-
-
-          if (
-            row.status !==
-            status
-          ) {
-
-            row.status =
-              status;
-
-            changed =
-              true;
-
-          }
-
-        }
-      );
-
-    }
-  );
-
-
-  if (changed) {
-
-    localStorage.setItem(
-      KEY,
-      JSON.stringify(db)
-    );
-
-  }
+  saveDB();
 
 }
-
 
 
 /* =====================================
-   CLIENTES
-===================================== */
+   VISUALIZAR VENDA
+   ===================================== */
 
-function buildClientDirectory() {
+function viewSale(id){
 
-  const map = {};
+  const sale =
+    (db.sales || []).find(function(s){
+      return s.id === id;
+    });
 
+  if(!sale){
 
-  (db.sales || [])
-    .forEach(
-      function(sale) {
-
-        const key =
-          sale.cpf ||
-          sale.client ||
-          sale.id;
-
-
-        if (!map[key]) {
-
-          map[key] = {
-
-            key,
-
-            name:
-              sale.client ||
-              "Cliente",
-
-            cpf:
-              sale.cpf ||
-              "",
-
-            phone:
-              sale.phone ||
-              "",
-
-            birthDate:
-              sale.birthDate ||
-              "",
-
-            cep:
-              sale.cep ||
-              "",
-
-            street:
-              sale.street ||
-              "",
-
-            number:
-              sale.number ||
-              "",
-
-            complement:
-              sale.complement ||
-              "",
-
-            neighborhood:
-              sale.neighborhood ||
-              "",
-
-            city:
-              sale.city ||
-              "",
-
-            state:
-              sale.state ||
-              "",
-
-            photo:
-              sale.documentPhoto ||
-              "",
-
-            qty: 0
-
-          };
-
-        }
-
-
-        map[key].qty++;
-
-
-        if (
-          !map[key].photo &&
-          sale.documentPhoto
-        ) {
-
-          map[key].photo =
-            sale.documentPhoto;
-
-        }
-
-      }
-    );
-
-
-  return Object.values(
-    map
-  );
-
-}
-
-
-
-function formatBirth(
-  value
-) {
-
-  if (!value) {
-
-    return "-";
-
-  }
-
-
-  const date =
-    new Date(
-      value +
-      "T00:00:00"
-    );
-
-
-  if (
-    isNaN(
-      date.getTime()
-    )
-  ) {
-
-    return value;
-
-  }
-
-
-  return date.toLocaleDateString(
-    "pt-BR"
-  );
-
-}
-
-
-
-/* =====================================
-   ABRIR CLIENTE
-===================================== */
-
-function viewClient(
-  id
-) {
-
-  const clients =
-    buildClientDirectory();
-
-
-  const client =
-    clients.find(
-      function(item) {
-
-        return item.key === id;
-
-      }
-    );
-
-
-  if (!client) {
-
-    toast(
-      "Cliente não encontrado."
-    );
+    toast("Venda não encontrada.");
 
     return;
 
   }
 
+  lastSimulation = sale;
 
-  const sales =
-    (db.sales || [])
-      .filter(
-        function(sale) {
+  const html = `
 
-          return (
+    <div class="modal-overlay"
+         onclick="closeModal()">
 
-            (
-              client.cpf &&
-              sale.cpf ===
-              client.cpf
-            )
+      <div class="modal"
+           onclick="event.stopPropagation()">
 
-            ||
+        <div class="modal-header">
 
-            (
-              !client.cpf &&
-              sale.client ===
-              client.name
-            )
+          <strong>
+            Venda ${esc(sale.id)}
+          </strong>
 
-          );
-
-        }
-      );
-
-
-  const address =
-    [
-      client.street,
-      client.number,
-      client.complement,
-      client.neighborhood,
-      client.city,
-      client.state,
-      client.cep
-    ]
-      .filter(Boolean)
-      .join(", ");
-
-
-  let salesHTML =
-    "";
-
-
-  if (!sales.length) {
-
-    salesHTML = `
-
-      <div class="muted">
-
-        Nenhuma venda encontrada.
-
-      </div>
-
-    `;
-
-  }
-
-  else {
-
-    salesHTML =
-      sales
-        .map(
-          function(sale, index) {
-
-            const installments =
-              Array.isArray(
-                sale.inst
-              )
-                ? sale.inst
-                : [];
-
-
-            return `
-
-              <div class="client-sale">
-
-                <h3>
-                  🛒 Venda ${index + 1}
-                </h3>
-
-
-                <div class="client-detail-row">
-
-                  <b>
-                    📱 Produto:
-                  </b>
-
-                  ${esc(
-                    sale.product ||
-                    "-"
-                  )}
-
-                </div>
-
-
-                <div class="client-detail-row">
-
-                  <b>
-                    🔢 IMEI:
-                  </b>
-
-                  ${esc(
-                    sale.imei ||
-                    "-"
-                  )}
-
-                </div>
-
-
-                <div class="client-detail-row">
-
-                  <b>
-                    💰 Valor:
-                  </b>
-
-                  ${money(
-                    sale.value
-                  )}
-
-                </div>
-
-
-                <div class="client-detail-row">
-
-                  <b>
-                    💵 Entrada:
-                  </b>
-
-                  ${money(
-                    sale.down
-                  )}
-
-                </div>
-
-
-                <div class="client-detail-row">
-
-                  <b>
-                    📆 Prazo:
-                  </b>
-
-                  ${esc(
-                    String(
-                      sale.months ||
-                      "-"
-                    )
-                  )}
-                  meses
-
-                </div>
-
-
-                <div
-                  style="
-                    margin-top:12px;
-                  "
-                >
-
-                  <b>
-                    📅 Parcelas
-                  </b>
-
-
-                  ${
-                    installments
-                      .map(
-                        function(
-                          parcel,
-                          parcelIndex
-                        ) {
-
-                          const statusClass =
-                            parcel.status ===
-                            "Pago"
-                              ? "paid"
-                              : parcel.status ===
-                                "Vencida"
-                                ? "late"
-                                : "open";
-
-
-                          return `
-
-                            <div
-                              class="client-installment"
-                            >
-
-                              <b>
-                                ${parcelIndex + 1}ª parcela
-                              </b>
-
-                              —
-
-                              ${new Date(
-                                parcel.d
-                              ).toLocaleDateString(
-                                "pt-BR"
-                              )}
-
-                              —
-
-                              ${money(
-                                parcel.value
-                              )}
-
-                              —
-
-                              <span
-                                class="pill ${statusClass}"
-                              >
-                                ${esc(
-                                  parcel.status ||
-                                  "A vencer"
-                                )}
-                              </span>
-
-                            </div>
-
-                          `;
-
-                        }
-                      )
-                      .join("")
-                  }
-
-                </div>
-
-
-                <div
-                  class="client-detail-actions"
-                >
-
-                  <button
-                    type="button"
-                    class="btn secondary"
-                    onclick="
-                      viewSale(
-                        '${sale.id}'
-                      )
-                    "
-                  >
-                    Ver venda
-                  </button>
-
-
-                  <button
-                    type="button"
-                    class="btn secondary"
-                    onclick="
-                      printContractBySale(
-                        '${sale.id}'
-                      )
-                    "
-                  >
-                    🖨️ Contrato
-                  </button>
-
-                </div>
-
-              </div>
-
-            `;
-
-          }
-        )
-        .join("");
-
-  }
-
-
-  document
-    .getElementById(
-      "modalContent"
-    )
-    .innerHTML = `
-
-      <div class="client-detail">
-
-
-        <h2>
-          👤 ${esc(
-            client.name
-          )}
-        </h2>
-
-
-        <div class="client-detail-box">
-
-          <h3>
-            📋 Dados do cliente
-          </h3>
-
-
-          <div
-            class="client-detail-row"
-          >
-
-            <b>
-              CPF:
-            </b>
-
-            ${esc(
-              client.cpf ||
-              "-"
-            )}
-
-          </div>
-
-
-          <div
-            class="client-detail-row"
-          >
-
-            <b>
-              📱 WhatsApp:
-            </b>
-
-            ${esc(
-              client.phone ||
-              "-"
-            )}
-
-          </div>
-
-
-          <div
-            class="client-detail-row"
-          >
-
-            <b>
-              🎂 Nascimento:
-            </b>
-
-            ${esc(
-              formatBirth(
-                client.birthDate
-              )
-            )}
-
-          </div>
-
-
-          <div
-            class="client-detail-row"
-          >
-
-            <b>
-              🏠 Endereço:
-            </b>
-
-            ${esc(
-              address ||
-              "-"
-            )}
-
-          </div>
-
-
-          <div
-            class="client-detail-row"
-          >
-
-            <b>
-              🛒 Total de vendas:
-            </b>
-
-            ${sales.length}
-
-          </div>
+          <button onclick="closeModal()">
+            ×
+          </button>
 
         </div>
 
+        <div class="modal-body">
 
-        <div class="client-detail-box">
+          <p>
+            <b>Cliente:</b>
+            ${esc(sale.client || "-")}
+          </p>
 
-          <h3>
-            📸 Documento
-          </h3>
+          <p>
+            <b>CPF:</b>
+            ${esc(sale.cpf || "-")}
+          </p>
 
+          <p>
+            <b>Produto:</b>
+            ${esc(sale.product || "-")}
+          </p>
+
+          <p>
+            <b>IMEI:</b>
+            ${esc(sale.imei || "-")}
+          </p>
+
+          <p>
+            <b>Valor:</b>
+            ${money(Number(sale.value || 0))}
+          </p>
+
+          <hr>
+
+          <h4>
+            Parcelas
+          </h4>
 
           ${
-            client.photo
-
-              ? `
-
-                <img
-                  class="client-document"
-                  src="${client.photo}"
-                  alt="Documento do cliente"
-                >
-
-              `
-
-              : `
-
-                <div class="muted">
-                  Nenhuma foto de documento cadastrada.
-                </div>
-
-              `
-          }
-
-        </div>
-
-
-        <div class="client-detail-box">
-
-          <h3>
-            🛍️ Histórico de compras
-          </h3>
-
-
-          ${salesHTML}
-
-        </div>
-
-
-        <button
-          type="button"
-          class="btn secondary"
-          onclick="closeModal()"
-        >
-          Fechar
-        </button>
-
-
-      </div>
-
-    `;
-
-
-  document
-    .getElementById(
-      "modal"
-    )
-    .style.display =
-    "flex";
-
-}
-
-
-
-/* =====================================
-   RENDERIZAR CLIENTES
-===================================== */
-
-function renderClientsCards() {
-
-  const box =
-    document.getElementById(
-      "clientsTable"
-    );
-
-
-  if (!box) return;
-
-
-  const clients =
-    buildClientDirectory();
-
-
-  if (!clients.length) {
-
-    box.innerHTML = `
-
-      <div class="muted">
-
-        Nenhum cliente cadastrado.
-
-      </div>
-
-    `;
-
-    return;
-
-  }
-
-
-  box.innerHTML = `
-
-    <div class="clients-grid">
-
-      ${
-        clients
-          .map(
-            function(client) {
-
-              const address =
-                [
-                  client.street,
-                  client.number,
-                  client.complement,
-                  client.neighborhood,
-                  client.city,
-                  client.state,
-                  client.cep
-                ]
-                  .filter(Boolean)
-                  .join(", ");
-
+            (sale.inst || []).map(function(p){
 
               return `
 
-                <div class="client-card">
+                <div style="
+                  padding:8px;
+                  border-bottom:1px solid #eee;
+                ">
 
-                  <h3>
-                    👤 ${esc(
-                      client.name
-                    )}
-                  </h3>
+                  Parcela ${p.n}
 
+                  —
+                  ${esc(p.due || "-")}
 
-                  <div
-                    class="client-line"
-                  >
+                  —
+                  <b>
+                    ${money(Number(p.amount || 0))}
+                  </b>
 
-                    <b>
-                      CPF:
-                    </b>
-
-                    ${esc(
-                      client.cpf ||
-                      "-"
-                    )}
-
-                  </div>
-
-
-                  <div
-                    class="client-line"
-                  >
-
-                    <b>
-                      📱 WhatsApp:
-                    </b>
-
-                    ${esc(
-                      client.phone ||
-                      "-"
-                    )}
-
-                  </div>
-
-
-                  <div
-                    class="client-line"
-                  >
-
-                    <b>
-                      🎂 Nascimento:
-                    </b>
-
-                    ${esc(
-                      formatBirth(
-                        client.birthDate
-                      )
-                    )}
-
-                  </div>
-
-
-                  <div
-                    class="client-line"
-                  >
-
-                    <b>
-                      🏠 Endereço:
-                    </b>
-
-                    ${esc(
-                      address ||
-                      "-"
-                    )}
-
-                  </div>
-
-
-                  <div
-                    class="client-line"
-                  >
-
-                    <b>
-                      🛒 Vendas:
-                    </b>
-
-                    ${client.qty}
-
-                  </div>
-
-
-                  ${
-                    client.photo
-
-                      ? `
-
-                        <img
-                          class="client-photo"
-                          src="${client.photo}"
-                          alt="Documento"
-                        >
-
-                      `
-
-                      : ""
-                  }
-
-
-                  <div
-                    class="client-actions"
-                  >
-
-                    <button
-                      type="button"
-                      class="btn secondary"
-                      data-client-key="${esc(
-                        client.key
-                      )}"
-                      onclick="
-                        viewClient(
-                          this.dataset.clientKey
-                        )
-                      "
-                    >
-
-                      Ver cliente
-
-                    </button>
-
-                  </div>
+                  —
+                  ${p.paid ? "PAGA" : "PENDENTE"}
 
                 </div>
 
               `;
 
-            }
-          )
-          .join("")
-      }
+            }).join("")
+          }
+
+        </div>
+
+        <div class="modal-footer">
+
+          <button
+            class="btn primary"
+            onclick="printContract()">
+
+            🖨️ Imprimir contrato
+
+          </button>
+
+          <button
+            class="btn"
+            onclick="closeModal()">
+
+            Fechar
+
+          </button>
+
+        </div>
+
+      </div>
 
     </div>
 
   `;
 
-}
-
-
-
-/* =====================================
-   VER VENDA
-===================================== */
-
-function viewSale(
-  id
-) {
-
-  const sale =
-    db.sales.find(
-      function(item) {
-
-        return item.id === id;
-
-      }
-    );
-
-
-  if (!sale) {
-
-    toast(
-      "Venda não encontrada."
-    );
-
-    return;
-
-  }
-
-
-  const address =
-    [
-      sale.street,
-      sale.number,
-      sale.complement,
-      sale.neighborhood,
-      sale.city,
-      sale.state,
-      sale.cep
-    ]
-      .filter(Boolean)
-      .join(", ");
-
-
-  const birth =
-    sale.birthDate
-      ? new Date(
-          sale.birthDate +
-          "T00:00:00"
-        ).toLocaleDateString(
-          "pt-BR"
-        )
-      : "-";
-
-
-  document
-    .getElementById(
-      "modalContent"
-    )
-    .innerHTML = `
-
-      <h2>
-        ${esc(
-          sale.id
-        )}
-      </h2>
-
-
-      <p>
-
-        <b>
-          Cliente:
-        </b>
-
-        ${esc(
-          sale.client
-        )}
-
-        <br>
-
-
-        <b>
-          CPF:
-        </b>
-
-        ${esc(
-          sale.cpf ||
-          "-"
-        )}
-
-        <br>
-
-
-        <b>
-          WhatsApp:
-        </b>
-
-        ${esc(
-          sale.phone ||
-          "-"
-        )}
-
-        <br>
-
-
-        <b>
-          Nascimento:
-        </b>
-
-        ${birth}
-
-        <br>
-
-
-        <b>
-          Endereço:
-        </b>
-
-        ${esc(
-          address ||
-          "-"
-        )}
-
-      </p>
-
-
-      <hr>
-
-
-      <h3>
-        📱 Produto
-      </h3>
-
-
-      <p>
-
-        <b>
-          Produto:
-        </b>
-
-        ${esc(
-          sale.product
-        )}
-
-        <br>
-
-
-        <b>
-          IMEI:
-        </b>
-
-        ${esc(
-          sale.imei ||
-          "-"
-        )}
-
-        <br>
-
-
-        <b>
-          Valor:
-        </b>
-
-        ${money(
-          sale.value
-        )}
-
-        <br>
-
-
-        <b>
-          Entrada:
-        </b>
-
-        ${money(
-          sale.down
-        )}
-
-      </p>
-
-
-      ${
-        sale.documentPhoto
-
-          ? `
-
-            <p>
-
-              <b>
-                Documento:
-              </b>
-
-              <br>
-
-              <img
-                src="${sale.documentPhoto}"
-                class="modal-document"
-                alt="Documento"
-              >
-
-            </p>
-
-          `
-
-          : ""
-      }
-
-
-      <h3>
-        📅 Parcelas
-      </h3>
-
-
-      <div class="table-wrap">
-
-        <table>
-
-          <thead>
-
-            <tr>
-
-              <th>
-                #
-              </th>
-
-              <th>
-                Vencimento
-              </th>
-
-              <th>
-                Valor
-              </th>
-
-              <th>
-                Status
-              </th>
-
-            </tr>
-
-          </thead>
-
-
-          <tbody>
-
-            ${
-              (sale.inst || [])
-                .map(
-                  function(
-                    row,
-                    index
-                  ) {
-
-                    const statusClass =
-                      row.status ===
-                      "Pago"
-                        ? "paid"
-                        : row.status ===
-                          "Vencida"
-                          ? "late"
-                          : "open";
-
-
-                    return `
-
-                      <tr>
-
-                        <td>
-                          ${index + 1}
-                        </td>
-
-                        <td>
-                          ${new Date(
-                            row.d
-                          ).toLocaleDateString(
-                            "pt-BR"
-                          )}
-                        </td>
-
-                        <td>
-                          ${money(
-                            row.value
-                          )}
-                        </td>
-
-                        <td>
-
-                          <button
-                            type="button"
-                            class="btn secondary"
-                            onclick="
-                              togglePayment(
-                                '${sale.id}',
-                                ${index}
-                              )
-                            "
-                          >
-
-                            <span
-                              class="pill ${statusClass}"
-                            >
-                              ${esc(
-                                row.status
-                              )}
-                            </span>
-
-                          </button>
-
-                        </td>
-
-                      </tr>
-
-                    `;
-
-                  }
-                )
-                .join("")
-            }
-
-          </tbody>
-
-        </table>
-
-      </div>
-
-
-      <br>
-
-
-      <div class="row">
-
-        <button
-          type="button"
-          class="btn secondary"
-          onclick="
-            printContractBySale(
-              '${sale.id}'
-            )
-          "
-        >
-          🖨️ Imprimir contrato
-        </button>
-
-
-        <button
-          type="button"
-          class="btn secondary"
-          onclick="closeModal()"
-        >
-          Fechar
-        </button>
-
-      </div>
-
-    `;
-
-
-  document
-    .getElementById(
-      "modal"
-    )
-    .style.display =
-    "flex";
+  document.body.insertAdjacentHTML(
+    "beforeend",
+    html
+  );
 
 }
-
 
 
 /* =====================================
    PAGAMENTO
-===================================== */
+   ===================================== */
 
-function togglePayment(
-  id,
-  index
-) {
+function togglePayment(saleId, parcelNumber){
 
   const sale =
-    db.sales.find(
-      function(item) {
+    (db.sales || []).find(function(s){
+      return s.id === saleId;
+    });
 
-        return item.id === id;
+  if(!sale) return;
 
-      }
-    );
+  const parcela =
+    (sale.inst || []).find(function(p){
+      return Number(p.n) === Number(parcelNumber);
+    });
 
+  if(!parcela) return;
 
-  if (!sale) return;
+  parcela.paid =
+    !parcela.paid;
 
-
-  const row =
-    sale.inst[index];
-
-
-  if (!row) return;
-
-
-  row.status =
-    row.status === "Pago"
-      ? "A vencer"
-      : "Pago";
-
+  parcela.status =
+    parcela.paid
+      ? "paid"
+      : "pending";
 
   saveDB();
 
+  refresh();
 
-  viewSale(
-    id
+  toast(
+    parcela.paid
+      ? "Parcela marcada como paga."
+      : "Parcela marcada como pendente."
   );
 
 }
-
 
 
 /* =====================================
    FECHAR MODAL
-===================================== */
+   ===================================== */
 
-function closeModal() {
+function closeModal(){
 
   document
-    .getElementById(
-      "modal"
-    )
-    .style.display =
-    "none";
+    .querySelectorAll(".modal-overlay")
+    .forEach(function(el){
+
+      el.remove();
+
+    });
 
 }
-
-
-document
-  .getElementById(
-    "modal"
-  )
-  .addEventListener(
-    "click",
-    function(event) {
-
-      if (
-        event.target.id ===
-        "modal"
-      ) {
-
-        closeModal();
-
-      }
-
-    }
-  );
-
 
 
 /* =====================================
    CONFIGURAÇÕES
-===================================== */
+   ===================================== */
 
-function loadSettings() {
+function saveSettings(){
 
-  document
-    .getElementById(
-      "setAdvance"
-    )
-    .value =
-    db.settings.advance;
+  const store =
+    document.getElementById("settingsStore");
 
+  const phone =
+    document.getElementById("settingsPhone");
 
-  document
-    .getElementById(
-      "setFine"
-    )
-    .value =
-    db.settings.fine;
+  if(store){
 
-
-  document
-    .getElementById(
-      "setInterest"
-    )
-    .value =
-    db.settings.interest;
-
-
-  document
-    .getElementById(
-      "setStore"
-    )
-    .value =
-    db.settings.store;
-
-
-  document
-    .getElementById(
-      "sAdvanceRate"
-    )
-    .value =
-    db.settings.advance;
-
-
-  document
-    .getElementById(
-      "sFine"
-    )
-    .value =
-    db.settings.fine;
-
-
-  document
-    .getElementById(
-      "sInterest"
-    )
-    .value =
-    db.settings.interest;
-
-}
-
-
-
-function saveSettings() {
-
-  db.settings.advance =
-    Number(
-      document
-        .getElementById(
-          "setAdvance"
-        )
-        .value
-    ) || 0;
-
-
-  db.settings.fine =
-    Number(
-      document
-        .getElementById(
-          "setFine"
-        )
-        .value
-    ) || 0;
-
-
-  db.settings.interest =
-    Number(
-      document
-        .getElementById(
-          "setInterest"
-        )
-        .value
-    ) || 0;
-
-
-  db.settings.store =
-    document
-      .getElementById(
-        "setStore"
-      )
-      .value
-      .trim() ||
-    "WM Eletrônicos";
-
-
-  loadSettings();
-
-  saveDB();
-
-  toast(
-    "Configurações salvas."
-  );
-
-}
-
-
-
-/* =====================================
-   APAGAR DADOS
-===================================== */
-
-function resetData() {
-
-  if (
-    !confirm(
-      "Apagar todas as vendas deste navegador?"
-    )
-  ) {
-
-    return;
+    db.settings.store =
+      store.value.trim() ||
+      "WM ELETRÔNICOS";
 
   }
 
+  if(phone){
 
-  db =
-    JSON.parse(
-      JSON.stringify(
-        DEFAULT_DB
-      )
-    );
+    db.settings.phone =
+      phone.value.trim();
 
+  }
 
-  localStorage.removeItem(
-    KEY
-  );
-
-
-  loadSettings();
+  saveDB();
 
   refresh();
 
-  toast(
-    "Dados apagados."
-  );
+  toast("Configurações salvas.");
 
 }
 
 
-
 /* =====================================
-   ATUALIZAR PAINEL
-===================================== */
+   PESQUISA
+   ===================================== */
 
-function refresh() {
+function setupSearch(){
 
-  updateOverdueStatuses();
+  const input =
+    document.getElementById("globalSearch");
 
+  if(!input) return;
 
-  const sales =
-    db.sales || [];
+  input.addEventListener(
+    "input",
+    function(){
 
+      const term =
+        this.value
+          .toLowerCase()
+          .trim();
 
-  const sold =
-    sales.reduce(
-      function(total, sale) {
+      document
+        .querySelectorAll(
+          "[data-search]"
+        )
+        .forEach(function(el){
 
-        return total +
-          Number(
-            sale.value || 0
-          );
+          const text =
+            (el.getAttribute("data-search") || "")
+              .toLowerCase();
 
-      },
-      0
-    );
+          el.style.display =
+            !term || text.includes(term)
+              ? ""
+              : "none";
 
-
-  const receivable =
-    sales.reduce(
-      function(total, sale) {
-
-        return total +
-
-          (sale.inst || [])
-            .filter(
-              function(row) {
-
-                return row.status !==
-                  "Pago";
-
-              }
-            )
-            .reduce(
-              function(sum, row) {
-
-                return sum +
-                  Number(
-                    row.value || 0
-                  );
-
-              },
-              0
-            );
-
-      },
-      0
-    );
-
-
-  const late =
-    sales.reduce(
-      function(total, sale) {
-
-        return total +
-
-          (sale.inst || [])
-            .filter(
-              function(row) {
-
-                return row.status ===
-                  "Vencida";
-
-              }
-            ).length;
-
-      },
-      0
-    );
-
-
-  const paid =
-    sales.reduce(
-      function(total, sale) {
-
-        return total +
-
-          (sale.inst || [])
-            .filter(
-              function(row) {
-
-                return row.status ===
-                  "Pago";
-
-              }
-            ).length;
-
-      },
-      0
-    );
-
-
-  document
-    .getElementById(
-      "kSold"
-    )
-    .textContent =
-    money(sold);
-
-
-  document
-    .getElementById(
-      "kReceivable"
-    )
-    .textContent =
-    money(receivable);
-
-
-  document
-    .getElementById(
-      "kLate"
-    )
-    .textContent =
-    late;
-
-
-  document
-    .getElementById(
-      "kPaid"
-    )
-    .textContent =
-    paid;
-
-
-
-  /* ÚLTIMAS VENDAS */
-
-  document
-    .getElementById(
-      "recentSales"
-    )
-    .innerHTML =
-
-    sales.length
-
-      ? `
-
-        <div class="table-wrap">
-
-          <table>
-
-            <thead>
-
-              <tr>
-
-                <th>
-                  Venda
-                </th>
-
-                <th>
-                  Cliente
-                </th>
-
-                <th>
-                  Valor
-                </th>
-
-              </tr>
-
-            </thead>
-
-
-            <tbody>
-
-              ${
-                sales
-                  .slice(0,6)
-                  .map(
-                    function(sale) {
-
-                      return `
-
-                        <tr>
-
-                          <td>
-                            ${esc(
-                              sale.id
-                            )}
-                          </td>
-
-                          <td>
-                            ${esc(
-                              sale.client
-                            )}
-                          </td>
-
-                          <td>
-                            ${money(
-                              sale.value
-                            )}
-                          </td>
-
-                        </tr>
-
-                      `;
-
-                    }
-                  )
-                  .join("")
-              }
-
-            </tbody>
-
-          </table>
-
-        </div>
-
-      `
-
-      : `
-
-        <div class="muted">
-          Nenhuma venda salva ainda.
-        </div>
-
-      `;
-
-
-
-  /* ATENÇÃO */
-
-  const overdue = [];
-
-
-  sales.forEach(
-    function(sale) {
-
-      (sale.inst || [])
-        .forEach(
-          function(row) {
-
-            if (
-              row.status ===
-              "Vencida"
-            ) {
-
-              overdue.push({
-
-                sale,
-
-                row
-
-              });
-
-            }
-
-          }
-        );
+        });
 
     }
   );
 
-
-  document
-    .getElementById(
-      "attention"
-    )
-    .innerHTML =
-
-    overdue.length
-
-      ? overdue
-          .slice(0,8)
-          .map(
-            function(item) {
-
-              return `
-
-                <div
-                  style="
-                    padding:10px 0;
-                    border-bottom:1px solid #eee;
-                  "
-                >
-
-                  <b>
-                    ${esc(
-                      item.sale.client
-                    )}
-                  </b>
-
-                  <br>
-
-                  Parcela
-                  ${item.row.n}
-
-                  —
-
-                  ${money(
-                    item.row.value
-                  )}
-
-                </div>
-
-              `;
-
-            }
-          )
-          .join("")
-
-      : `
-
-        <div class="muted">
-          Nenhuma parcela vencida.
-        </div>
-
-      `;
-
-
-
-  /* TABELA DE VENDAS */
-
-  document
-    .getElementById(
-      "salesTable"
-    )
-    .innerHTML =
-
-    sales.length
-
-      ? `
-
-        <div class="table-wrap">
-
-          <table>
-
-            <thead>
-
-              <tr>
-
-                <th>
-                  ID
-                </th>
-
-                <th>
-                  Cliente
-                </th>
-
-                <th>
-                  Produto
-                </th>
-
-                <th>
-                  Total
-                </th>
-
-                <th>
-                  Parcelas
-                </th>
-
-                <th>
-                  Ação
-                </th>
-
-              </tr>
-
-            </thead>
-
-
-            <tbody>
-
-              ${
-                sales
-                  .map(
-                    function(sale) {
-
-                      return `
-
-                        <tr>
-
-                          <td>
-                            ${esc(
-                              sale.id
-                            )}
-                          </td>
-
-                          <td>
-                            ${esc(
-                              sale.client
-                            )}
-                          </td>
-
-                          <td>
-                            ${esc(
-                              sale.product
-                            )}
-                          </td>
-
-                          <td>
-                            ${money(
-                              sale.value
-                            )}
-                          </td>
-
-                          <td>
-                            ${sale.n}
-                          </td>
-
-                          <td>
-
-                            <button
-                              type="button"
-                              class="btn secondary"
-                              onclick="
-                                viewSale(
-                                  '${sale.id}'
-                                )
-                              "
-                            >
-                              Abrir
-                            </button>
-
-                          </td>
-
-                        </tr>
-
-                      `;
-
-                    }
-                  )
-                  .join("")
-              }
-
-            </tbody>
-
-          </table>
-
-        </div>
-
-      `
-
-      : `
-
-        <div class="muted">
-          Nenhuma venda cadastrada.
-        </div>
-
-      `;
-
-
-  /* CLIENTES */
-
-  renderClientsCards();
-
 }
-
-
-
-/* =====================================
-   BUSCA
-===================================== */
-
-function globalSearch(
-  text
-) {
-
-  const query =
-    text
-      .trim()
-      .toLowerCase();
-
-
-  if (!query) return;
-
-
-  const sale =
-    db.sales.find(
-      function(item) {
-
-        return [
-
-          item.client,
-          item.product,
-          item.imei,
-          item.id,
-          item.cpf
-
-        ]
-          .some(
-            function(value) {
-
-              return String(
-                value || ""
-              )
-                .toLowerCase()
-                .includes(
-                  query
-                );
-
-            }
-          );
-
-      }
-    );
-
-
-  if (sale) {
-
-    showPage(
-      "sales"
-    );
-
-  }
-
-}
-
 
 
 /* =====================================
    INICIALIZAÇÃO
-===================================== */
+   ===================================== */
 
-function init() {
+document.addEventListener(
+  "DOMContentLoaded",
+  function(){
 
-  setupDocumentPhoto();
+    setupDocumentPhoto();
 
-  loadSettings();
+    setupSearch();
 
+    updateOverdueStatuses();
 
-  document
-    .getElementById(
-      "simulateBtn"
-    )
-    .addEventListener(
-      "click",
-      simulate
-    );
+    refresh();
 
-
-  document
-    .getElementById(
-      "clearBtn"
-    )
-    .addEventListener(
-      "click",
-      clearSale
-    );
-
-
-  document
-    .getElementById(
-      "saveSettingsBtn"
-    )
-    .addEventListener(
-      "click",
-      saveSettings
-    );
-
-
-  document
-    .getElementById(
-      "resetBtn"
-    )
-    .addEventListener(
-      "click",
-      resetData
-    );
-
-
-  document
-    .getElementById(
-      "globalSearch"
-    )
-    .addEventListener(
-      "input",
-      function() {
-
-        globalSearch(
-          this.value
-        );
-
-      }
-    );
-
-
-  refresh();
-
-}
-
-
-if (
-  document.readyState ===
-  "loading"
-) {
-
-  document.addEventListener(
-    "DOMContentLoaded",
-    init
-  );
-
-}
-
-else {
-
-  init();
-
-}
+  }
+);
 
 </script>
 
 </body>
-
 </html>
