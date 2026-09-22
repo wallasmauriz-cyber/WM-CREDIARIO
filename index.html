@@ -5946,6 +5946,252 @@ function wmCloseCreditTable(){
 }
 
 </script>
+  <script>
+/* ==========================================
+   WM CREDIÁRIO — REGRAS AUTOMÁTICAS
+   30% ENTRADA
+   20% MENSAL
+   30% QUINZENAL
+   LIMITE R$ 2.000 FINANCIADO
+   ========================================== */
+
+(function(){
+
+  function atualizarWM(){
+
+    const valorEl = document.getElementById("sValue");
+    const entradaEl = document.getElementById("sDown");
+    const mesesEl = document.getElementById("sMonths");
+    const freqEl = document.getElementById("sFreq");
+    const taxaEl = document.getElementById("sCustomerRate");
+
+    if(!valorEl || !entradaEl || !mesesEl || !freqEl || !taxaEl){
+      return;
+    }
+
+    const valorAvista = Number(valorEl.value || 0);
+    const freq = freqEl.value;
+
+    if(valorAvista <= 0){
+      entradaEl.value = "";
+      taxaEl.value = "";
+      return;
+    }
+
+    /*
+      REGRA:
+      Mensal = +20%
+      Quinzenal = +30%
+    */
+
+    let acrescimo = 0.20;
+
+    if(freq === "biweekly"){
+      acrescimo = 0.30;
+    }
+
+    /*
+      Preço final do crediário
+    */
+
+    const valorCrediario =
+      valorAvista * (1 + acrescimo);
+
+    /*
+      Entrada padrão = 30%
+    */
+
+    let entrada =
+      valorCrediario * 0.30;
+
+    /*
+      Limite máximo financiado = R$ 2.000
+    */
+
+    let saldo =
+      valorCrediario - entrada;
+
+    if(saldo > 2000){
+
+      entrada =
+        valorCrediario - 2000;
+
+      saldo = 2000;
+
+    }
+
+    /*
+      Mostra a entrada automaticamente
+    */
+
+    entradaEl.value =
+      entrada.toFixed(2);
+
+    /*
+      NÃO colocamos 20 ou 30 diretamente
+      no campo "juros ao mês", porque isso
+      faria o sistema aplicar juros compostos
+      mês após mês.
+
+      Colocamos a taxa equivalente apenas
+      para que o cálculo antigo do sistema
+      chegue ao mesmo total.
+    */
+
+    const meses =
+      Number(mesesEl.value || 6);
+
+    const taxaEquivalente =
+      Math.pow(
+        1 + acrescimo,
+        1 / meses
+      ) - 1;
+
+    taxaEl.value =
+      (taxaEquivalente * 100).toFixed(4);
+
+  }
+
+
+  function prepararWM(){
+
+    const valorEl =
+      document.getElementById("sValue");
+
+    const entradaEl =
+      document.getElementById("sDown");
+
+    const mesesEl =
+      document.getElementById("sMonths");
+
+    const freqEl =
+      document.getElementById("sFreq");
+
+    const taxaEl =
+      document.getElementById("sCustomerRate");
+
+    if(!valorEl || !entradaEl || !mesesEl || !freqEl || !taxaEl){
+      return;
+    }
+
+
+    /*
+      Entrada não pode ser digitada
+      manualmente.
+    */
+
+    entradaEl.readOnly = true;
+
+    entradaEl.style.background = "#f3f4f6";
+    entradaEl.style.fontWeight = "800";
+
+
+    /*
+      Taxa também fica automática.
+    */
+
+    taxaEl.readOnly = true;
+
+    taxaEl.style.background = "#f3f4f6";
+    taxaEl.style.fontWeight = "800";
+
+
+    /*
+      Troca o nome do campo.
+    */
+
+    const taxaLabel =
+      taxaEl.parentElement
+        ? taxaEl.parentElement.querySelector("label")
+        : null;
+
+    if(taxaLabel){
+
+      taxaLabel.textContent =
+        "Acréscimo do crediário (automático)";
+
+    }
+
+
+    /*
+      Quando mudar o valor
+    */
+
+    valorEl.addEventListener(
+      "input",
+      atualizarWM
+    );
+
+    valorEl.addEventListener(
+      "change",
+      atualizarWM
+    );
+
+
+    /*
+      Quando mudar o prazo
+    */
+
+    mesesEl.addEventListener(
+      "change",
+      atualizarWM
+    );
+
+
+    /*
+      Quando mudar mensal/quinzenal
+    */
+
+    freqEl.addEventListener(
+      "change",
+      function(){
+
+        /*
+          Quinzenal = 6 meses = 12 pagamentos
+        */
+
+        if(freqEl.value === "biweekly"){
+
+          mesesEl.value = "6";
+
+        }
+
+        /*
+          Mensal = 6 meses
+        */
+
+        if(freqEl.value === "monthly"){
+
+          mesesEl.value = "6";
+
+        }
+
+        atualizarWM();
+
+      }
+    );
+
+
+    atualizarWM();
+
+  }
+
+
+  if(document.readyState === "loading"){
+
+    document.addEventListener(
+      "DOMContentLoaded",
+      prepararWM
+    );
+
+  }else{
+
+    prepararWM();
+
+  }
+
+})();
+</script>
 </body>
 
 </html>
