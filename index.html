@@ -2379,7 +2379,7 @@ function simulate() {
    SALVAR VENDA
 ===================================== */
 
-function saveSale() {
+async function saveSale() {
 
   if (!lastSimulation) {
 
@@ -2403,55 +2403,128 @@ function saveSale() {
       .slice(-8);
 
 
-  const sale = {
-
-    id,
-
-    created:
-      new Date().toISOString(),
-
-    ...x,
-
-    inst:
-      x.inst.map(
-        function(row) {
-
-          return {
-
-            ...row,
-
-            d:
-              row.d.toISOString()
-
-          };
-
-        }
-      )
-
-  };
-
-
-  db.sales.unshift(
-    sale
-  );
-
-
-  if (
-    saveDB()
-  ) {
+  try {
 
     toast(
-      "Venda salva: " + id
+      "Cadastrando cliente no Asaas..."
     );
 
-    showPage(
-      "sales"
+
+    const asaasResponse =
+      await fetch(
+        "/api/asaas",
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json"
+          },
+
+          body: JSON.stringify({
+
+            name: x.client,
+
+            cpfCnpj: x.cpf,
+
+            mobilePhone: x.phone,
+
+            externalReference: id
+
+          })
+
+        }
+      );
+
+
+    const asaasData =
+      await asaasResponse.json();
+
+
+    if (
+      !asaasResponse.ok ||
+      !asaasData.ok ||
+      !asaasData.cliente ||
+      !asaasData.cliente.id
+    ) {
+
+      console.error(
+        "Erro Asaas:",
+        asaasData
+      );
+
+      toast(
+        "Não foi possível cadastrar o cliente no Asaas."
+      );
+
+      return;
+
+    }
+
+
+    const sale = {
+
+      id,
+
+      created:
+        new Date().toISOString(),
+
+      asaasCustomerId:
+        asaasData.cliente.id,
+
+      ...x,
+
+      inst:
+        x.inst.map(
+          function(row) {
+
+            return {
+
+              ...row,
+
+              d:
+                row.d.toISOString()
+
+            };
+
+          }
+        )
+
+    };
+
+
+    db.sales.unshift(
+      sale
+    );
+
+
+    if (
+      saveDB()
+    ) {
+
+      toast(
+        "Venda salva e cliente cadastrado no Asaas: " + id
+      );
+
+      showPage(
+        "sales"
+      );
+
+    }
+
+  } catch (error) {
+
+    console.error(
+      "Erro ao conectar com Asaas:",
+      error
+    );
+
+    toast(
+      "Erro ao conectar com o Asaas."
     );
 
   }
 
 }
-
 
 
 /* =====================================
