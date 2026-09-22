@@ -3582,6 +3582,254 @@ if(
 
 }
 
+</script> 
+  <style>
+.clients-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+}
+.client-card{
+  background:#fff;
+  border:1px solid #e3e8f0;
+  border-radius:16px;
+  padding:16px;
+  box-shadow:0 5px 18px rgba(20,35,65,.06);
+}
+.client-card h3{
+  margin:0 0 10px;
+  font-size:18px;
+}
+.client-line{
+  margin:7px 0;
+  color:#536074;
+  font-size:14px;
+  line-height:1.4;
+}
+.client-line b{color:#182033}
+.client-actions{
+  margin-top:14px;
+}
+.client-photo{
+  width:100%;
+  max-height:180px;
+  object-fit:cover;
+  border-radius:12px;
+  margin-top:10px;
+  border:1px solid #e3e8f0;
+}
+@media(max-width:650px){
+  .clients-grid{grid-template-columns:1fr}
+}
+</style>
+
+<script>
+(function(){
+
+  window.__wmClients = {};
+
+  function buildClientDirectory(){
+    const map = {};
+
+    (db.sales || []).forEach(function(sale){
+
+      const key = sale.cpf || sale.client || sale.id;
+
+      if(!map[key]){
+        map[key] = {
+          key:key,
+          name:sale.client || 'Cliente',
+          cpf:sale.cpf || '',
+          phone:sale.phone || '',
+          birthDate:sale.birthDate || '',
+          cep:sale.cep || '',
+          street:sale.street || '',
+          number:sale.number || '',
+          complement:sale.complement || '',
+          neighborhood:sale.neighborhood || '',
+          city:sale.city || '',
+          state:sale.state || '',
+          photo:sale.documentPhoto || '',
+          qty:0
+        };
+      }
+
+      map[key].qty++;
+
+      if(!map[key].photo && sale.documentPhoto){
+        map[key].photo=sale.documentPhoto;
+      }
+
+    });
+
+    return Object.values(map);
+  }
+
+  function formatBirth(v){
+    if(!v) return '-';
+
+    const d = new Date(v + 'T00:00:00');
+
+    return isNaN(d.getTime())
+      ? v
+      : d.toLocaleDateString('pt-BR');
+  }
+
+  window.renderClientsCards = function(){
+
+    const box = document.getElementById('clientsTable');
+
+    if(!box) return;
+
+    const clients = buildClientDirectory();
+
+    if(!clients.length){
+      box.innerHTML='<div class="muted">Nenhum cliente cadastrado.</div>';
+      return;
+    }
+
+    window.__wmClients = {};
+
+    box.innerHTML =
+      '<div class="clients-grid">' +
+
+      clients.map(function(c,i){
+
+        const id='c'+i;
+
+        window.__wmClients[id]=c;
+
+        const address = [
+          c.street,
+          c.number,
+          c.complement,
+          c.neighborhood,
+          c.city,
+          c.state,
+          c.cep
+        ].filter(Boolean).join(', ');
+
+        return `
+          <div class="client-card">
+
+            <h3>👤 ${esc(c.name)}</h3>
+
+            <div class="client-line">
+              <b>CPF:</b> ${esc(c.cpf || '-')}
+            </div>
+
+            <div class="client-line">
+              <b>📱 WhatsApp:</b> ${esc(c.phone || '-')}
+            </div>
+
+            <div class="client-line">
+              <b>🎂 Nascimento:</b> ${esc(formatBirth(c.birthDate))}
+            </div>
+
+            <div class="client-line">
+              <b>🏠 Endereço:</b> ${esc(address || '-')}
+            </div>
+
+            <div class="client-line">
+              <b>🛒 Vendas:</b> ${c.qty}
+            </div>
+
+            ${c.photo ? `
+              <img
+                class="client-photo"
+                src="${c.photo}"
+                alt="Documento do cliente"
+              >
+            ` : ''}
+
+            <div class="client-actions">
+              <button
+                type="button"
+                class="btn secondary"
+                onclick="viewClient('${id}')"
+              >
+                Ver cliente
+              </button>
+            </div>
+
+          </div>
+        `;
+
+      }).join('') +
+
+      '</div>';
+  };
+
+  window.viewClient = function(id){
+
+    const c = window.__wmClients[id];
+
+    if(!c) return;
+
+    const address = [
+      c.street,
+      c.number,
+      c.complement,
+      c.neighborhood,
+      c.city,
+      c.state,
+      c.cep
+    ].filter(Boolean).join(', ');
+
+    document.getElementById('modalContent').innerHTML = `
+
+      <h2>👤 ${esc(c.name)}</h2>
+
+      <p>
+        <b>CPF:</b> ${esc(c.cpf || '-')}<br>
+        <b>WhatsApp:</b> ${esc(c.phone || '-')}<br>
+        <b>Nascimento:</b> ${esc(formatBirth(c.birthDate))}<br>
+        <b>Endereço:</b> ${esc(address || '-')}<br>
+        <b>Vendas:</b> ${c.qty}
+      </p>
+
+      ${
+        c.photo
+        ? `
+          <p>
+            <b>📸 Documento</b><br>
+            <img
+              class="client-photo"
+              src="${c.photo}"
+              alt="Documento do cliente"
+            >
+          </p>
+        `
+        : `
+          <p class="muted">
+            Nenhuma foto de documento cadastrada.
+          </p>
+        `
+      }
+
+      <button
+        type="button"
+        class="btn secondary"
+        onclick="closeModal()"
+      >
+        Fechar
+      </button>
+
+    `;
+
+    document.getElementById('modal').style.display='flex';
+  };
+
+  const oldRefresh = refresh;
+
+  window.refresh = function(){
+    oldRefresh();
+    renderClientsCards();
+  };
+
+  renderClientsCards();
+
+})();
 </script>
 
 </body>
