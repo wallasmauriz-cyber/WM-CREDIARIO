@@ -4140,6 +4140,21 @@ if(
 })();
 </script>
 
-  
+  <script>
+document.addEventListener('click', function(e){
+  const btn = e.target.closest('.client-card .client-actions button');
+  if(!btn) return;
+
+  e.preventDefault();
+  e.stopImmediatePropagation();
+
+  const code = btn.getAttribute('onclick') || '';
+  const match = code.match(/viewClient\(['"]([^'"]+)['"]\)/);
+
+  if(match && typeof window.viewClient === 'function'){
+    window.viewClient(match[1]);
+  }
+}, true);
+</script>
 </body>
 </html>
