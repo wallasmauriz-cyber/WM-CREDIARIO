@@ -4336,7 +4336,44 @@ function renderClientsCards() {
    VER VENDA
 ===================================== */
 
-function viewSale(
+function deleteSale(id) {
+
+  const sale =
+    db.sales.find(
+      function(item) {
+        return item.id === id;
+      }
+    );
+
+  if (!sale) {
+    toast("Venda não encontrada.");
+    return;
+  }
+
+  if (
+    !confirm(
+      "Tem certeza que deseja excluir esta venda?"
+    )
+  ) {
+    return;
+  }
+
+  db.sales =
+    db.sales.filter(
+      function(item) {
+        return item.id !== id;
+      }
+    );
+
+  saveDB();
+
+  closeModal();
+
+  toast(
+    "Venda excluída com sucesso."
+  );
+}
+  function viewSale(
   id
 ) {
 
@@ -5363,6 +5400,17 @@ function refresh() {
                             >
                               Abrir
                             </button>
+                            <button
+  type="button"
+  class="btn danger"
+  onclick="
+    deleteSale(
+      '${sale.id}'
+    )
+  "
+>
+  🗑️ Excluir
+</button>
 
                           </td>
 
