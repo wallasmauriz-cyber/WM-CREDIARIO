@@ -4139,5 +4139,35 @@ if(
 
 })();
 </script>
+  <style>
+.client-actions button{
+  position:relative;
+  z-index:9999;
+  pointer-events:auto !important;
+  touch-action:manipulation;
+}
+</style>
+
+<script>
+document.addEventListener('click', function(e){
+
+  const button = e.target.closest('.client-card .client-actions button');
+
+  if(!button) return;
+
+  const match = button.getAttribute('onclick') || '';
+  const id = match.match(/viewClient\(['"]([^'"]+)['"]\)/);
+
+  if(!id) return;
+
+  e.preventDefault();
+  e.stopPropagation();
+
+  if(window.__wmClients && window.__wmClients[id[1]]){
+    window.viewClient(id[1]);
+  }
+
+}, true);
+</script>
 </body>
 </html>
