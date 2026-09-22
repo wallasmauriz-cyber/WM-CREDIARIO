@@ -5564,50 +5564,53 @@ function wmMoney(value){
 function wmCreditCalc(precoAvista, percentual){
 
   /*
-    6x mensal:
-    +20% sobre o preço à vista
+    REGRA WM CREDIÁRIO
 
-    12x quinzenal:
-    +30% sobre o preço à vista
+    Entrada padrão = 30% do preço à vista.
 
-    Entrada padrão:
-    30%
+    O valor financiado é o preço à vista,
+    limitado a R$ 2.000.
 
-    Limite máximo financiado:
-    R$ 2.000
+    O acréscimo (20% mensal ou 30% quinzenal)
+    é aplicado somente sobre o valor financiado.
+
+    Se o preço passar de R$ 2.000,
+    a entrada aumenta para manter o financiamento
+    limitado a R$ 2.000.
   */
 
-  const total =
-    precoAvista * (1 + percentual);
+  const valorVista = Number(precoAvista) || 0;
 
+  // Valor máximo que pode ser financiado
+  const valorFinanciado =
+    Math.min(valorVista, 2000);
+
+  // Entrada padrão de 30%
   let entrada =
-    total * 0.30;
+    valorVista * 0.30;
 
-  let saldo =
-    total - entrada;
-
-  /*
-    Se o saldo passar de R$ 2.000,
-    aumenta a entrada.
-  */
-
-  if(saldo > 2000){
-
+  // Se passar do limite, aumenta a entrada
+  if(valorVista > 2000){
     entrada =
-      total - 2000;
-
-    saldo = 2000;
-
+      valorVista - 2000;
   }
 
+  // Total das parcelas com o acréscimo
+  const totalParcelas =
+    valorFinanciado * (1 + percentual);
+
   return {
-    total,
-    entrada,
-    saldo
+    total:
+      valorVista,
+
+    entrada:
+      entrada,
+
+    saldo:
+      totalParcelas
   };
 
 }
-
 
 function wmOpenCreditTable(){
 
@@ -5994,32 +5997,27 @@ function wmCloseCreditTable(){
       Preço final do crediário
     */
 
-    const valorCrediario =
-      valorAvista * (1 + acrescimo);
-
     /*
-      Entrada padrão = 30%
-    */
+    REGRA WM
+    Entrada = 30% do preço à vista
+    Financiamento = até R$ 2.000
+    O acréscimo de 30% é aplicado somente nas parcelas
+*/
 
-    let entrada =
-      valorCrediario * 0.30;
+let entrada =
+  valorAvista * 0.30;
 
-    /*
-      Limite máximo financiado = R$ 2.000
-    */
+let saldo =
+  valorAvista;
 
-    let saldo =
-      valorCrediario - entrada;
+if(saldo > 2000){
 
-    if(saldo > 2000){
+    saldo = 2000;
 
-      entrada =
-        valorCrediario - 2000;
+    entrada =
+      valorAvista - 2000;
 
-      saldo = 2000;
-
-    }
-
+}
     /*
       Mostra a entrada automaticamente
     */
