@@ -2461,7 +2461,106 @@ async function saveSale() {
     }
 
 
-    const sale = {
+const asaasCustomerId =
+  asaasData.cliente.id;
+
+const asaasPayments = [];
+
+toast(
+  "Criando cobranças no Asaas..."
+);
+
+    
+
+    for (
+      const row of x.inst
+    ) {
+
+      const date =
+        new Date(row.d);
+
+      const dueDate =
+        date.getFullYear() +
+        "-" +
+        String(
+          date.getMonth() + 1
+        ).padStart(2, "0") +
+        "-" +
+        String(
+          date.getDate()
+        ).padStart(2, "0");
+
+      const paymentResponse =
+        await fetch(
+          "/api/asaas-payment",
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json"
+            },
+
+            body: JSON.stringify({
+              customer:
+                asaasCustomerId,
+
+              value:
+                Number(
+                  row.value
+                ),
+
+              dueDate,
+
+              description:
+                x.product +
+                " - Parcela " +
+                row.n,
+
+              externalReference:
+                id +
+                "-P" +
+                row.n
+            })
+          }
+        );
+
+      const paymentData =
+        await paymentResponse.json();
+
+      if (
+        !paymentResponse.ok ||
+        !paymentData.ok ||
+        !paymentData.cobranca ||
+        !paymentData.cobranca.id
+      ) {
+
+        console.error(
+          "Erro ao criar cobrança:",
+          paymentData
+        );
+
+        toast(
+          "Erro ao criar a parcela " +
+          row.n +
+          " no Asaas."
+        );
+
+        return;
+      }
+
+      asaasPayments.push({
+        n: row.n,
+        id:
+          paymentData.cobranca.id,
+        invoiceUrl:
+          paymentData.cobranca.invoiceUrl ||
+          null,
+        bankSlipUrl:
+          paymentData.cobranca.bankSlipUrl ||
+          null
+      });
+    }
 
       id,
 
@@ -2470,7 +2569,7 @@ async function saveSale() {
 
       asaasCustomerId:
         asaasData.cliente.id,
-
+asaasPayments,
       ...x,
 
       inst:
