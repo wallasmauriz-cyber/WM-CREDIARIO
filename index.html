@@ -3832,5 +3832,312 @@ if(
 })();
 </script>
 
+  <style>
+.client-detail{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+.client-detail-box{
+  background:#f7f9fc;
+  border:1px solid #e3e8f0;
+  border-radius:14px;
+  padding:14px;
+}
+.client-detail-box h3{
+  margin:0 0 10px;
+  font-size:16px;
+}
+.client-detail-row{
+  margin:6px 0;
+  line-height:1.45;
+}
+.client-sale{
+  background:#fff;
+  border:1px solid #e3e8f0;
+  border-radius:12px;
+  padding:12px;
+  margin-top:10px;
+}
+.client-installment{
+  padding:8px 0;
+  border-bottom:1px solid #edf0f5;
+  font-size:14px;
+}
+.client-document{
+  width:100%;
+  max-height:300px;
+  object-fit:contain;
+  background:#111;
+  border-radius:12px;
+  margin-top:8px;
+}
+.client-detail-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:14px;
+}
+</style>
+
+<script>
+(function(){
+
+  window.viewClient = function(id){
+
+    const c = window.__wmClients[id];
+
+    if(!c) return;
+
+    const sales = (db.sales || []).filter(function(sale){
+
+      return (
+        (c.cpf && sale.cpf === c.cpf) ||
+        (!c.cpf && sale.client === c.name)
+      );
+
+    });
+
+    const addressParts = [
+      c.street ? c.street : '',
+      c.number ? 'Nº ' + c.number : '',
+      c.complement ? c.complement : '',
+      c.neighborhood ? c.neighborhood : '',
+      c.city ? c.city : '',
+      c.state ? c.state : '',
+      c.cep ? 'CEP ' + c.cep : ''
+    ].filter(Boolean);
+
+    const address = addressParts.join(', ');
+
+    let salesHTML = '';
+
+    if(!sales.length){
+
+      salesHTML = `
+        <div class="client-detail-box">
+          <div class="muted">Nenhuma venda encontrada.</div>
+        </div>
+      `;
+
+    }else{
+
+      salesHTML = sales.map(function(sale,index){
+
+        const installments =
+          sale.installments ||
+          sale.schedule ||
+          sale.parcelas ||
+          [];
+
+        let installmentsHTML = '';
+
+        if(Array.isArray(installments) && installments.length){
+
+          installmentsHTML = `
+            <div style="margin-top:12px">
+              <b>📅 Parcelas</b>
+              ${installments.map(function(p,pi){
+
+                const date =
+                  p.date ||
+                  p.dueDate ||
+                  p.data ||
+                  '-';
+
+                const value =
+                  p.value ??
+                  p.amount ??
+                  p.valor ??
+                  '';
+
+                const status =
+                  p.status ||
+                  p.situation ||
+                  p.situacao ||
+                  'A vencer';
+
+                return `
+                  <div class="client-installment">
+                    <b>${pi + 1}ª parcela</b>
+                    — ${esc(String(date))}
+                    ${value !== '' ? ' — R$ ' + Number(value).toLocaleString('pt-BR',{minimumFractionDigits:2}) : ''}
+                    — <b>${esc(String(status))}</b>
+                  </div>
+                `;
+
+              }).join('')}
+            </div>
+          `;
+
+        }
+
+        const saleValue =
+          Number(sale.value || 0);
+
+        const entry =
+          Number(sale.entry || 0);
+
+        return `
+          <div class="client-sale">
+
+            <h3>🛒 Venda ${index + 1}</h3>
+
+            <div class="client-detail-row">
+              <b>📱 Produto:</b>
+              ${esc(sale.product || '-')}
+            </div>
+
+            <div class="client-detail-row">
+              <b>🔢 IMEI:</b>
+              ${esc(sale.imei || '-')}
+            </div>
+
+            <div class="client-detail-row">
+              <b>💰 Valor:</b>
+              R$ ${saleValue.toLocaleString('pt-BR',{
+                minimumFractionDigits:2
+              })}
+            </div>
+
+            <div class="client-detail-row">
+              <b>💵 Entrada:</b>
+              R$ ${entry.toLocaleString('pt-BR',{
+                minimumFractionDigits:2
+              })}
+            </div>
+
+            ${
+              sale.term
+              ? `
+                <div class="client-detail-row">
+                  <b>📆 Prazo:</b>
+                  ${esc(String(sale.term))}
+                </div>
+              `
+              : ''
+            }
+
+            ${installmentsHTML}
+
+            <div class="client-detail-actions">
+
+              ${
+                typeof viewSale === 'function'
+                ? `
+                  <button
+                    type="button"
+                    class="btn secondary"
+                    onclick="viewSale('${sale.id}')"
+                  >
+                    Ver venda
+                  </button>
+                `
+                : ''
+              }
+
+              ${
+                typeof printContract === 'function'
+                ? `
+                  <button
+                    type="button"
+                    class="btn secondary"
+                    onclick="printContract('${sale.id}')"
+                  >
+                    🖨️ Contrato
+                  </button>
+                `
+                : ''
+              }
+
+            </div>
+
+          </div>
+        `;
+
+      }).join('');
+
+    }
+
+    document.getElementById('modalContent').innerHTML = `
+
+      <div class="client-detail">
+
+        <h2>👤 ${esc(c.name)}</h2>
+
+        <div class="client-detail-box">
+
+          <h3>📋 Dados do cliente</h3>
+
+          <div class="client-detail-row">
+            <b>CPF:</b> ${esc(c.cpf || '-')}
+          </div>
+
+          <div class="client-detail-row">
+            <b>📱 WhatsApp:</b> ${esc(c.phone || '-')}
+          </div>
+
+          <div class="client-detail-row">
+            <b>🎂 Nascimento:</b> ${esc(formatBirth(c.birthDate))}
+          </div>
+
+          <div class="client-detail-row">
+            <b>🏠 Endereço:</b> ${esc(address || '-')}
+          </div>
+
+          <div class="client-detail-row">
+            <b>🛒 Total de vendas:</b> ${sales.length}
+          </div>
+
+        </div>
+
+        <div class="client-detail-box">
+
+          <h3>📸 Documento</h3>
+
+          ${
+            c.photo
+            ? `
+              <img
+                class="client-document"
+                src="${c.photo}"
+                alt="Documento do cliente"
+              >
+            `
+            : `
+              <div class="muted">
+                Nenhuma foto de documento cadastrada.
+              </div>
+            `
+          }
+
+        </div>
+
+        <div class="client-detail-box">
+
+          <h3>🛍️ Histórico de compras</h3>
+
+          ${salesHTML}
+
+        </div>
+
+        <button
+          type="button"
+          class="btn secondary"
+          onclick="closeModal()"
+        >
+          Fechar
+        </button>
+
+      </div>
+
+    `;
+
+    document.getElementById('modal').style.display='flex';
+
+  };
+
+})();
+</script>
 </body>
 </html>
