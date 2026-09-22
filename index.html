@@ -1,322 +1,504 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>WM Crediário — Protótipo</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#101a2b">
+<title>WM Crediário</title>
 
 <style>
 :root{
---blue:#1557ff;
---navy:#101a2b;
---bg:#f4f7fb;
---card:#fff;
---text:#182033;
---muted:#687386;
---green:#0aa56b;
---red:#e14b4b;
---yellow:#d99400
+  --blue:#1557ff;
+  --navy:#101a2b;
+  --bg:#f4f7fb;
+  --card:#fff;
+  --text:#182033;
+  --muted:#687386;
+  --green:#0aa56b;
+  --red:#e14b4b;
+  --yellow:#d99400;
+  --border:#e3e8f0;
 }
-*{box-sizing:border-box}
+
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+
+html,body{
+  margin:0;
+  padding:0;
+  min-height:100%;
+}
+
 body{
-margin:0;
-font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial;
-background:var(--bg);
-color:var(--text)
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+  background:var(--bg);
+  color:var(--text);
 }
-.app{display:flex;min-height:100vh}
+
+button,
+input,
+select{
+  font-family:inherit;
+}
+
+button{
+  touch-action:manipulation;
+}
+
+.app{
+  min-height:100vh;
+}
+
+/* TOPO */
 .side{
-width:235px;
-background:linear-gradient(180deg,#0b1424,#14243d);
-color:#fff;
-padding:18px 12px;
-position:sticky;
-top:0;
-height:100vh
+  background:linear-gradient(180deg,#0b1424,#14243d);
+  color:white;
+  padding:14px 12px;
+  position:sticky;
+  top:0;
+  z-index:20;
 }
+
 .logo{
-font-weight:900;
-font-size:30px;
-letter-spacing:-2px;
-padding:8px 12px
+  font-weight:900;
+  font-size:30px;
+  letter-spacing:-2px;
+  padding:5px 8px;
 }
-.logo b{color:#2c6cff}
+
+.logo b{
+  color:#2c6cff;
+}
+
 .sub{
-font-size:10px;
-opacity:.7;
-padding:0 14px 22px
+  font-size:9px;
+  opacity:.7;
+  padding:0 10px 10px;
 }
-.nav button{
-display:block;
-width:100%;
-text-align:left;
-border:0;
-background:transparent;
-color:#dbe5f5;
-padding:13px 14px;
-border-radius:10px;
-margin:4px 0;
-cursor:pointer;
-font-size:14px
-}
-.nav button.active,.nav button:hover{
-background:#1557ff;
-color:white
-}
-.main{
-flex:1;
-padding:20px;
-max-width:1500px;
-margin:auto
-}
-.top{
-display:flex;
-gap:12px;
-align-items:center;
-margin-bottom:18px
-}
-.search{
-flex:1;
-background:#fff;
-border:1px solid #e1e7f0;
-border-radius:12px;
-padding:13px 16px
-}
-h1{
-font-size:24px;
-margin:0 0 4px
-}
-.muted{
-color:var(--muted);
-font-size:13px
-}
-.grid{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:16px
-}
-.grid3{
-display:grid;
-grid-template-columns:repeat(3,1fr);
-gap:16px
-}
-.card{
-background:var(--card);
-border:1px solid #e5eaf2;
-border-radius:16px;
-padding:18px;
-box-shadow:0 5px 20px rgba(20,35,65,.05)
-}
-.card h2{
-font-size:17px;
-margin:0 0 15px
-}
-.fields{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:12px
-}
-.field{
-display:flex;
-flex-direction:column;
-gap:6px
-}
-.field.full{
-grid-column:1/-1
-}
-.field label{
-font-size:12px;
-color:var(--muted)
-}
-input,select,textarea{
-width:100%;
-padding:11px 12px;
-border:1px solid #d8dfeb;
-border-radius:9px;
-background:#fff;
-font-size:14px;
-outline:none
-}
-textarea{
-min-height:90px;
-resize:vertical
-}
-input:focus,select:focus,textarea:focus{
-border-color:var(--blue);
-box-shadow:0 0 0 3px #1557ff18
-}
-input[type=file]{
-padding:9px;
-font-size:12px
-}
-.btn{
-border:0;
-border-radius:10px;
-padding:12px 16px;
-font-weight:700;
-cursor:pointer
-}
-.primary{
-background:var(--blue);
-color:#fff
-}
-.secondary{
-background:#edf3ff;
-color:#1557ff
-}
-.danger{
-background:#fff0f0;
-color:#c53030
-}
-.row{
-display:flex;
-gap:10px;
-align-items:center;
-flex-wrap:wrap
-}
-.right{text-align:right}
-.result{
-background:linear-gradient(135deg,#f8fbff,#eef5ff);
-border:1px solid #dbe7ff
-}
-.big{
-font-size:28px;
-font-weight:900;
-color:var(--blue)
-}
-.kpi{
-font-size:25px;
-font-weight:900
-}
-.green{color:var(--green)}
-.red{color:var(--red)}
-.yellow{color:var(--yellow)}
-table{
-width:100%;
-border-collapse:collapse;
-font-size:13px
-}
-th,td{
-text-align:left;
-padding:11px 8px;
-border-bottom:1px solid #edf0f5
-}
-th{
-color:var(--muted);
-font-size:11px;
-text-transform:uppercase
-}
-.pill{
-display:inline-block;
-padding:5px 8px;
-border-radius:999px;
-font-size:11px;
-font-weight:700
-}
-.paid{
-background:#e7f8f0;
-color:#08784f
-}
-.open{
-background:#fff4da;
-color:#9a6700
-}
-.late{
-background:#ffe8e8;
-color:#b32626
-}
-.page{display:none}
-.page.active{display:block}
-.stats{
-display:grid;
-grid-template-columns:repeat(4,1fr);
-gap:12px;
-margin:15px 0
-}
-.stat{
-background:#fff;
-border:1px solid #e5eaf2;
-border-radius:14px;
-padding:16px
-}
-.stat small{color:var(--muted)}
-.toast{
-position:fixed;
-right:20px;
-bottom:20px;
-background:#122039;
-color:#fff;
-padding:13px 16px;
-border-radius:10px;
-display:none;
-z-index:99
-}
-.modal{
-position:fixed;
-inset:0;
-background:#0008;
-display:none;
-align-items:center;
-justify-content:center;
-padding:20px;
-z-index:10
-}
-.modalbox{
-background:white;
-border-radius:16px;
-max-width:900px;
-width:100%;
-max-height:90vh;
-overflow:auto;
-padding:24px
-}
-.doc-preview{
-display:flex;
-gap:12px;
-flex-wrap:wrap;
-margin-top:10px
-}
-.doc-preview img{
-width:180px;
-height:120px;
-object-fit:cover;
-border-radius:10px;
-border:1px solid #ddd
-}
-.client-header{
-background:#eef4ff;
-border-radius:12px;
-padding:14px;
-margin-bottom:15px
-}
-@media(max-width:1000px){
-.side{width:76px}
-.logo{font-size:22px}
-.sub,.nav span{display:none}
-.grid,.grid3{grid-template-columns:1fr}
-.stats{grid-template-columns:1fr 1fr}
-}
-@media(max-width:650px){
-.app{display:block}
-.side{
-width:100%;
-height:auto;
-position:static;
-display:flex;
-align-items:center
-}
+
 .nav{
-display:flex;
-overflow:auto;
-flex:1
+  display:flex;
+  gap:6px;
+  overflow-x:auto;
+  scrollbar-width:none;
 }
-.nav button{white-space:nowrap}
-.logo{padding:4px 8px}
-.sub{display:none}
-.main{padding:12px}
-.fields{grid-template-columns:1fr}
-.field.full{grid-column:auto}
-.stats{grid-template-columns:1fr 1fr}
+
+.nav::-webkit-scrollbar{
+  display:none;
+}
+
+.nav button{
+  flex:0 0 auto;
+  border:0;
+  background:transparent;
+  color:#dbe5f5;
+  padding:12px 14px;
+  border-radius:10px;
+  cursor:pointer;
+  font-size:14px;
+  font-weight:700;
+}
+
+.nav button.active,
+.nav button:active{
+  background:var(--blue);
+  color:white;
+}
+
+/* CONTEÚDO */
+.main{
+  width:100%;
+  max-width:1500px;
+  margin:auto;
+  padding:14px;
+}
+
+.top{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  margin-bottom:16px;
+}
+
+.search{
+  flex:1;
+  min-width:0;
+  background:white;
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:14px;
+  font-size:15px;
+  outline:none;
+}
+
+.search:focus{
+  border-color:var(--blue);
+}
+
+h1{
+  font-size:25px;
+  margin:0 0 5px;
+}
+
+h2{
+  margin-top:0;
+}
+
+.muted{
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.5;
+}
+
+/* BOTÕES */
+.btn{
+  border:0;
+  border-radius:10px;
+  padding:12px 16px;
+  font-weight:800;
+  cursor:pointer;
+  font-size:14px;
+}
+
+.primary{
+  background:var(--blue);
+  color:white;
+}
+
+.secondary{
+  background:#edf3ff;
+  color:var(--blue);
+}
+
+.danger{
+  background:#fff0f0;
+  color:#c53030;
+}
+
+.btn:active{
+  transform:scale(.98);
+}
+
+/* CARDS */
+.card{
+  background:white;
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:18px;
+  box-shadow:0 5px 20px rgba(20,35,65,.05);
+}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px;
+  margin:16px 0;
+}
+
+.stat{
+  background:white;
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:16px;
+}
+
+.stat small{
+  color:var(--muted);
+}
+
+.kpi{
+  font-size:25px;
+  font-weight:900;
+  margin-top:7px;
+}
+
+.green{
+  color:var(--green);
+}
+
+.red{
+  color:var(--red);
+}
+
+.yellow{
+  color:var(--yellow);
+}
+
+/* GRID */
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+}
+
+.fields{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+
+.field{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+
+.field.full{
+  grid-column:1/-1;
+}
+
+.field label{
+  font-size:12px;
+  color:var(--muted);
+  font-weight:700;
+}
+
+input,
+select{
+  width:100%;
+  padding:12px;
+  border:1px solid #d8dfeb;
+  border-radius:9px;
+  background:white;
+  font-size:15px;
+  outline:none;
+}
+
+input:focus,
+select:focus{
+  border-color:var(--blue);
+  box-shadow:0 0 0 3px #1557ff18;
+}
+
+input[type="file"]{
+  padding:9px;
+}
+
+/* PÁGINAS */
+.page{
+  display:none;
+}
+
+.page.active{
+  display:block;
+}
+
+/* RESULTADO */
+.result{
+  background:linear-gradient(135deg,#f8fbff,#eef5ff);
+  border:1px solid #dbe7ff;
+}
+
+.big{
+  font-size:28px;
+  font-weight:900;
+  color:var(--blue);
+}
+
+.row{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+
+.space{
+  justify-content:space-between;
+}
+
+hr{
+  border:0;
+  border-top:1px solid #e3e8f0;
+  margin:16px 0;
+}
+
+/* TABELAS */
+.table-wrap{
+  width:100%;
+  overflow-x:auto;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:13px;
+}
+
+th,
+td{
+  text-align:left;
+  padding:11px 8px;
+  border-bottom:1px solid #edf0f5;
+  white-space:nowrap;
+}
+
+th{
+  color:var(--muted);
+  font-size:11px;
+  text-transform:uppercase;
+}
+
+.pill{
+  display:inline-block;
+  padding:5px 8px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:800;
+}
+
+.paid{
+  background:#e7f8f0;
+  color:#08784f;
+}
+
+.open{
+  background:#fff4da;
+  color:#9a6700;
+}
+
+.late{
+  background:#ffe8e8;
+  color:#b32626;
+}
+
+/* FOTO */
+.document-preview{
+  margin-top:10px;
+  display:none;
+}
+
+.document-preview img{
+  width:180px;
+  max-width:100%;
+  border-radius:12px;
+  border:1px solid var(--border);
+}
+
+/* TOAST */
+.toast{
+  position:fixed;
+  left:50%;
+  bottom:20px;
+  transform:translateX(-50%);
+  background:#122039;
+  color:white;
+  padding:13px 17px;
+  border-radius:10px;
+  display:none;
+  z-index:100;
+  max-width:90%;
+  text-align:center;
+}
+
+/* MODAL */
+.modal{
+  position:fixed;
+  inset:0;
+  background:#0008;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:15px;
+  z-index:90;
+}
+
+.modalbox{
+  background:white;
+  border-radius:16px;
+  max-width:850px;
+  width:100%;
+  max-height:90vh;
+  overflow:auto;
+  padding:22px;
+}
+
+/* FOTO DO DOCUMENTO NO MODAL */
+.modal-document{
+  max-width:300px;
+  width:100%;
+  border-radius:12px;
+  margin-top:10px;
+}
+
+/* MOBILE */
+@media(max-width:800px){
+
+  .stats{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .grid{
+    grid-template-columns:1fr;
+  }
+
+}
+
+@media(max-width:600px){
+
+  .side{
+    position:sticky;
+    top:0;
+  }
+
+  .logo{
+    font-size:25px;
+  }
+
+  .sub{
+    display:none;
+  }
+
+  .nav button{
+    font-size:12px;
+    padding:11px 10px;
+  }
+
+  .main{
+    padding:12px;
+  }
+
+  .top{
+    flex-direction:column;
+    align-items:stretch;
+  }
+
+  .top .btn{
+    width:100%;
+  }
+
+  .fields{
+    grid-template-columns:1fr;
+  }
+
+  .field.full{
+    grid-column:auto;
+  }
+
+  .stats{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .stat{
+    padding:13px;
+  }
+
+  .kpi{
+    font-size:21px;
+  }
+
+  h1{
+    font-size:23px;
+  }
+
+  .card{
+    padding:15px;
+  }
+
+  .row .btn{
+    flex:1;
+  }
 }
 </style>
 </head>
@@ -325,911 +507,1454 @@ flex:1
 
 <div class="app">
 
-<aside class="side">
+  <!-- MENU -->
+  <aside class="side">
 
-<div>
-<div class="logo"><span>W</span><b>M</b></div>
-<div class="sub">ELETRÔNICOS • CREDIÁRIO</div>
+    <div>
+      <div class="logo">
+        W<b>M</b>
+      </div>
+
+      <div class="sub">
+        ELETRÔNICOS • CREDIÁRIO
+      </div>
+    </div>
+
+    <nav class="nav">
+
+      <button type="button" class="active" data-page="home">
+        🏠 <span>Início</span>
+      </button>
+
+      <button type="button" data-page="sale">
+        🛒 <span>Nova venda</span>
+      </button>
+
+      <button type="button" data-page="clients">
+        👥 <span>Clientes</span>
+      </button>
+
+      <button type="button" data-page="sales">
+        📋 <span>Vendas</span>
+      </button>
+
+      <button type="button" data-page="settings">
+        ⚙️ <span>Configurações</span>
+      </button>
+
+    </nav>
+
+  </aside>
+
+  <main class="main">
+
+    <!-- TOPO -->
+    <div class="top">
+
+      <input
+        id="globalSearch"
+        class="search"
+        placeholder="Buscar cliente, venda ou IMEI..."
+        type="search"
+      >
+
+      <button
+        type="button"
+        class="btn secondary"
+        id="newSaleBtn"
+      >
+        + Nova venda
+      </button>
+
+    </div>
+
+
+    <!-- ================= HOME ================= -->
+
+    <section id="home" class="page active">
+
+      <h1>Painel WM Crediário</h1>
+
+      <div class="muted">
+        Controle suas vendas parceladas e simule taxas antes de cobrar.
+      </div>
+
+      <div class="stats">
+
+        <div class="stat">
+          <small>Total vendido</small>
+          <div class="kpi" id="kSold">R$ 0,00</div>
+        </div>
+
+        <div class="stat">
+          <small>A receber</small>
+          <div class="kpi" id="kReceivable">R$ 0,00</div>
+        </div>
+
+        <div class="stat">
+          <small>Parcelas vencidas</small>
+          <div class="kpi red" id="kLate">0</div>
+        </div>
+
+        <div class="stat">
+          <small>Parcelas pagas</small>
+          <div class="kpi green" id="kPaid">0</div>
+        </div>
+
+      </div>
+
+      <div class="grid">
+
+        <div class="card">
+          <h2>Últimas vendas</h2>
+          <div id="recentSales"></div>
+        </div>
+
+        <div class="card">
+          <h2>Atenção</h2>
+          <div id="attention" class="muted">
+            Nenhuma parcela vencida.
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ================= NOVA VENDA ================= -->
+
+    <section id="sale" class="page">
+
+      <h1>Nova venda</h1>
+
+      <div class="muted">
+        Cadastre o cliente e simule o crediário.
+      </div>
+
+      <br>
+
+      <div class="grid">
+
+        <!-- DADOS CLIENTE -->
+        <div class="card">
+
+          <h2>👤 Dados do cliente</h2>
+
+          <div class="fields">
+
+            <div class="field full">
+              <label>Nome completo</label>
+              <input
+                id="sClient"
+                placeholder="Nome completo do cliente"
+                autocomplete="name"
+              >
+            </div>
+
+            <div class="field">
+              <label>CPF</label>
+              <input
+                id="sCpf"
+                placeholder="000.000.000-00"
+                inputmode="numeric"
+              >
+            </div>
+
+            <div class="field">
+              <label>WhatsApp</label>
+              <input
+                id="sPhone"
+                placeholder="(16) 99999-9999"
+                inputmode="tel"
+              >
+            </div>
+
+            <div class="field">
+              <label>Data de nascimento</label>
+              <input
+                id="sBirthDate"
+                type="date"
+              >
+            </div>
+
+            <div class="field">
+              <label>CEP</label>
+              <input
+                id="sCep"
+                placeholder="00000-000"
+                inputmode="numeric"
+              >
+            </div>
+
+            <div class="field full">
+              <label>Endereço</label>
+              <input
+                id="sStreet"
+                placeholder="Rua / Avenida"
+              >
+            </div>
+
+            <div class="field">
+              <label>Número</label>
+              <input
+                id="sNumber"
+                placeholder="Número"
+                inputmode="numeric"
+              >
+            </div>
+
+            <div class="field">
+              <label>Complemento</label>
+              <input
+                id="sComplement"
+                placeholder="Apto, casa, fundos..."
+              >
+            </div>
+
+            <div class="field">
+              <label>Bairro</label>
+              <input
+                id="sNeighborhood"
+                placeholder="Bairro"
+              >
+            </div>
+
+            <div class="field">
+              <label>Cidade</label>
+              <input
+                id="sCity"
+                placeholder="Cidade"
+              >
+            </div>
+
+            <div class="field">
+              <label>Estado</label>
+              <input
+                id="sState"
+                placeholder="SP"
+                maxlength="2"
+              >
+            </div>
+
+            <!-- DOCUMENTO -->
+            <div class="field full">
+
+              <label>
+                📸 Foto do documento
+              </label>
+
+              <input
+                id="sDocument"
+                type="file"
+                accept="image/*"
+                capture="environment"
+              >
+
+              <div class="muted">
+                Tire uma foto ou selecione a imagem do documento.
+              </div>
+
+              <div
+                id="documentPreview"
+                class="document-preview"
+              >
+                <img id="documentPreviewImg">
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <!-- DADOS VENDA -->
+        <div class="card">
+
+          <h2>📱 Dados da venda</h2>
+
+          <div class="fields">
+
+            <div class="field full">
+              <label>Produto</label>
+              <input
+                id="sProduct"
+                value="iPhone 11"
+              >
+            </div>
+
+            <div class="field full">
+              <label>IMEI</label>
+              <input
+                id="sImei"
+                placeholder="IMEI do aparelho"
+                inputmode="numeric"
+              >
+            </div>
+
+            <div class="field">
+              <label>Valor do aparelho</label>
+              <input
+                id="sValue"
+                type="number"
+                step="0.01"
+                value="1500"
+              >
+            </div>
+
+            <div class="field">
+              <label>Entrada</label>
+              <input
+                id="sDown"
+                type="number"
+                step="0.01"
+                value="300"
+              >
+            </div>
+
+            <div class="field">
+              <label>Prazo</label>
+
+              <select id="sMonths">
+                <option value="3">3 meses</option>
+                <option value="4">4 meses</option>
+                <option value="5">5 meses</option>
+                <option value="6" selected>6 meses</option>
+                <option value="8">8 meses</option>
+                <option value="10">10 meses</option>
+                <option value="12">12 meses</option>
+              </select>
+
+            </div>
+
+            <div class="field">
+
+              <label>Periodicidade</label>
+
+              <select id="sFreq">
+                <option value="weekly">
+                  Semanal
+                </option>
+
+                <option value="biweekly" selected>
+                  Quinzenal
+                </option>
+
+                <option value="monthly">
+                  Mensal
+                </option>
+              </select>
+
+            </div>
+
+            <div class="field">
+              <label>
+                Taxa cliente (% ao mês)
+              </label>
+
+              <input
+                id="sCustomerRate"
+                type="number"
+                step="0.01"
+                value="0"
+              >
+            </div>
+
+            <div class="field">
+              <label>
+                Taxa antecipação (% ao mês)
+              </label>
+
+              <input
+                id="sAdvanceRate"
+                type="number"
+                step="0.01"
+                value="1.70"
+              >
+            </div>
+
+            <div class="field">
+              <label>
+                Custo do aparelho para WM
+              </label>
+
+              <input
+                id="sCost"
+                type="number"
+                step="0.01"
+                value="1200"
+              >
+            </div>
+
+            <div class="field">
+              <label>Multa por atraso (%)</label>
+
+              <input
+                id="sFine"
+                type="number"
+                step="0.01"
+                value="2"
+              >
+            </div>
+
+            <div class="field">
+              <label>
+                Juros por atraso (% ao mês)
+              </label>
+
+              <input
+                id="sInterest"
+                type="number"
+                step="0.01"
+                value="1"
+              >
+            </div>
+
+          </div>
+
+          <br>
+
+          <div class="row">
+
+            <button
+              type="button"
+              class="btn primary"
+              id="simulateBtn"
+            >
+              🧮 Simular
+            </button>
+
+            <button
+              type="button"
+              class="btn secondary"
+              id="clearBtn"
+            >
+              Limpar
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <br>
+
+      <!-- RESULTADO -->
+      <div class="card result">
+
+        <h2>Resultado da simulação</h2>
+
+        <div id="result">
+
+          <div class="muted">
+            Preencha os dados e clique em Simular.
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <br>
+
+      <!-- PARCELAS -->
+      <div class="card">
+
+        <h2>Parcelas</h2>
+
+        <div
+          id="schedule"
+          class="table-wrap"
+        >
+
+          <div class="muted">
+            A simulação aparecerá aqui.
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ================= CLIENTES ================= -->
+
+    <section id="clients" class="page">
+
+      <h1>Clientes</h1>
+
+      <div class="muted">
+        Clientes cadastrados nas vendas.
+      </div>
+
+      <br>
+
+      <div class="card">
+
+        <div
+          id="clientsTable"
+          class="table-wrap"
+        ></div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ================= VENDAS ================= -->
+
+    <section id="sales" class="page">
+
+      <h1>Vendas e cobranças</h1>
+
+      <div class="muted">
+        Controle das vendas e parcelas.
+      </div>
+
+      <br>
+
+      <div class="card">
+
+        <div
+          id="salesTable"
+          class="table-wrap"
+        ></div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ================= CONFIGURAÇÕES ================= -->
+
+    <section id="settings" class="page">
+
+      <h1>Configurações</h1>
+
+      <div class="muted">
+        Defina os padrões do simulador.
+      </div>
+
+      <br>
+
+      <div class="card">
+
+        <div class="fields">
+
+          <div class="field">
+            <label>
+              Taxa antecipação padrão (% a.m.)
+            </label>
+
+            <input
+              id="setAdvance"
+              type="number"
+              step="0.01"
+            >
+          </div>
+
+          <div class="field">
+            <label>Multa padrão (%)</label>
+
+            <input
+              id="setFine"
+              type="number"
+              step="0.01"
+            >
+          </div>
+
+          <div class="field">
+            <label>
+              Juros padrão (% a.m.)
+            </label>
+
+            <input
+              id="setInterest"
+              type="number"
+              step="0.01"
+            >
+          </div>
+
+          <div class="field">
+            <label>Nome da loja</label>
+
+            <input
+              id="setStore"
+              value="WM Eletrônicos"
+            >
+          </div>
+
+        </div>
+
+        <br>
+
+        <div class="row">
+
+          <button
+            type="button"
+            class="btn primary"
+            id="saveSettingsBtn"
+          >
+            Salvar configurações
+          </button>
+
+          <button
+            type="button"
+            class="btn danger"
+            id="resetBtn"
+          >
+            Apagar dados
+          </button>
+
+        </div>
+
+      </div>
+
+      <br>
+
+      <div class="card">
+
+        <h2>Integração Asaas</h2>
+
+        <p class="muted">
+          Esta versão é um protótipo local.
+          Ela ainda não envia cobranças reais.
+          A integração com servidor e Asaas será feita em uma próxima etapa.
+        </p>
+
+      </div>
+
+    </section>
+
+  </main>
+
 </div>
 
-<nav class="nav">
-<button class="active" data-page="home">🏠 <span>Início</span></button>
-<button data-page="sale">🛒 <span>Nova venda</span></button>
-<button data-page="clients">👥 <span>Clientes</span></button>
-<button data-page="sales">📋 <span>Vendas</span></button>
-<button data-page="settings">⚙️ <span>Configurações</span></button>
-</nav>
 
-</aside>
-
-<main class="main">
-
-<div class="top">
-<input id="globalSearch"
-class="search"
-placeholder="Buscar cliente, venda ou IMEI..."
-oninput="globalSearch(this.value)">
-
-<button class="btn secondary" onclick="showPage('sale')">
-+ Nova venda
-</button>
-</div>
-
-
-<!-- INÍCIO -->
-
-<section id="home" class="page active">
-
-<h1>Painel WM Crediário</h1>
-
-<div class="muted">
-Controle suas vendas parceladas e simule taxas antes de cobrar.
-</div>
-
-<div class="stats">
-
-<div class="stat">
-<small>Total vendido</small>
-<div class="kpi" id="kSold">R$ 0,00</div>
-</div>
-
-<div class="stat">
-<small>A receber</small>
-<div class="kpi" id="kReceivable">R$ 0,00</div>
-</div>
-
-<div class="stat">
-<small>Parcelas vencidas</small>
-<div class="kpi red" id="kLate">0</div>
-</div>
-
-<div class="stat">
-<small>Parcelas pagas</small>
-<div class="kpi green" id="kPaid">0</div>
-</div>
-
-</div>
-
-<div class="grid">
-
-<div class="card">
-<h2>Últimas vendas</h2>
-<div id="recentSales"></div>
-</div>
-
-<div class="card">
-<h2>Atenção</h2>
-<div id="attention" class="muted">
-Nenhuma parcela vencida.
-</div>
-</div>
-
-</div>
-
-</section>
-
-
-<!-- NOVA VENDA -->
-
-<section id="sale" class="page">
-
-<h1>Simulador de venda no boleto</h1>
-
-<div class="muted">
-Cadastre o cliente e faça a simulação da venda.
-</div>
-
-<br>
-
-<div class="grid">
-
-<div class="card">
-
-<h2>Dados do cliente</h2>
-
-<div class="fields">
-
-<div class="field full">
-<label>Nome completo</label>
-<input id="sClient" placeholder="Nome completo">
-</div>
-
-<div class="field">
-<label>CPF</label>
-<input id="sCpf" placeholder="000.000.000-00">
-</div>
-
-<div class="field">
-<label>Data de nascimento</label>
-<input id="sBirth" type="date">
-</div>
-
-<div class="field">
-<label>WhatsApp</label>
-<input id="sPhone" placeholder="(16) 99999-9999">
-</div>
-
-<div class="field">
-<label>CEP</label>
-<input id="sCep" placeholder="00000-000">
-</div>
-
-<div class="field full">
-<label>Rua / Avenida</label>
-<input id="sStreet" placeholder="Nome da rua">
-</div>
-
-<div class="field">
-<label>Número</label>
-<input id="sNumber" placeholder="Número">
-</div>
-
-<div class="field">
-<label>Bairro</label>
-<input id="sNeighborhood" placeholder="Bairro">
-</div>
-
-<div class="field">
-<label>Cidade</label>
-<input id="sCity" value="Morro Agudo">
-</div>
-
-<div class="field">
-<label>Tipo de documento</label>
-<select id="sDocType">
-<option value="">Selecione</option>
-<option value="RG">RG</option>
-<option value="CNH">CNH</option>
-</select>
-</div>
-
-<div class="field">
-<label>Número do documento</label>
-<input id="sDocNumber" placeholder="Número do RG ou CNH">
-</div>
-
-<div class="field full">
-<label>Observações do cliente</label>
-<textarea id="sNotes" placeholder="Observações importantes..."></textarea>
-</div>
-
-<div class="field">
-<label>📸 Documento — frente</label>
-<input id="sDocFront" type="file" accept="image/*" onchange="previewDocument('sDocFront','frontPreview')">
-<div id="frontPreview"></div>
-</div>
-
-<div class="field">
-<label>📸 Documento — verso</label>
-<input id="sDocBack" type="file" accept="image/*" onchange="previewDocument('sDocBack','backPreview')">
-<div id="backPreview"></div>
-</div>
-
-</div>
-
-<br>
-
-<h2>Dados da venda</h2>
-
-<div class="fields">
-
-<div class="field">
-<label>Produto</label>
-<input id="sProduct" value="iPhone 11">
-</div>
-
-<div class="field">
-<label>IMEI</label>
-<input id="sImei" placeholder="IMEI do aparelho">
-</div>
-
-<div class="field">
-<label>Valor do aparelho</label>
-<input id="sValue" type="number" step="0.01" value="1500">
-</div>
-
-<div class="field">
-<label>Entrada</label>
-<input id="sDown" type="number" step="0.01" value="300">
-</div>
-
-<div class="field">
-<label>Prazo</label>
-<select id="sMonths">
-<option value="3">3 meses</option>
-<option value="4">4 meses</option>
-<option value="5">5 meses</option>
-<option value="6" selected>6 meses</option>
-<option value="8">8 meses</option>
-<option value="10">10 meses</option>
-<option value="12">12 meses</option>
-</select>
-</div>
-
-<div class="field">
-<label>Periodicidade</label>
-<select id="sFreq">
-<option value="weekly">Semanal</option>
-<option value="biweekly" selected>Quinzenal</option>
-<option value="monthly">Mensal</option>
-</select>
-</div>
-
-<div class="field">
-<label>Taxa cobrada do cliente (% ao mês)</label>
-<input id="sCustomerRate" type="number" step="0.01" value="0">
-</div>
-
-<div class="field">
-<label>Taxa de antecipação (% ao mês)</label>
-<input id="sAdvanceRate" type="number" step="0.01" value="1.70">
-</div>
-
-<div class="field">
-<label>Custo do aparelho para a WM</label>
-<input id="sCost" type="number" step="0.01" value="1200">
-</div>
-
-<div class="field">
-<label>Multa por atraso (%)</label>
-<input id="sFine" type="number" step="0.01" value="2">
-</div>
-
-<div class="field">
-<label>Juros por atraso (% ao mês)</label>
-<input id="sInterest" type="number" step="0.01" value="1">
-</div>
-
-</div>
-
-<br>
-
-<div class="row">
-
-<button class="btn primary" onclick="simulate()">
-🧮 Simular
-</button>
-
-<button class="btn secondary" onclick="clearSale()">
-Limpar
-</button>
-
-</div>
-
-</div>
-
-
-<div class="card result">
-
-<h2>Resultado da simulação</h2>
-
-<div id="result">
-<div class="muted">
-Preencha os dados e clique em Simular.
-</div>
-</div>
-
-</div>
-
-</div>
-
-<br>
-
-<div class="card">
-
-<h2>Parcelas</h2>
-
-<div id="schedule">
-<div class="muted">
-A simulação aparecerá aqui.
-</div>
-</div>
-
-</div>
-
-</section>
-
-
-<!-- CLIENTES -->
-
-<section id="clients" class="page">
-
-<h1>Clientes</h1>
-
-<div class="muted">
-Cadastro e histórico dos clientes.
-</div>
-
-<br>
-
-<div class="card">
-
-<div id="clientsTable"></div>
-
-</div>
-
-</section>
-
-
-<!-- VENDAS -->
-
-<section id="sales" class="page">
-
-<h1>Vendas e cobranças</h1>
-
-<div class="muted">
-Controle das vendas e parcelas.
-</div>
-
-<br>
-
-<div class="card">
-
-<div id="salesTable"></div>
-
-</div>
-
-</section>
-
-
-<!-- CONFIGURAÇÕES -->
-
-<section id="settings" class="page">
-
-<h1>Configurações</h1>
-
-<div class="muted">
-Defina os padrões do simulador.
-</div>
-
-<br>
-
-<div class="card">
-
-<div class="fields">
-
-<div class="field">
-<label>Taxa de antecipação padrão (% a.m.)</label>
-<input id="setAdvance" type="number" step="0.01" value="1.70">
-</div>
-
-<div class="field">
-<label>Multa padrão (%)</label>
-<input id="setFine" type="number" step="0.01" value="2">
-</div>
-
-<div class="field">
-<label>Juros padrão (% a.m.)</label>
-<input id="setInterest" type="number" step="0.01" value="1">
-</div>
-
-<div class="field">
-<label>Nome da loja</label>
-<input id="setStore" value="WM Eletrônicos">
-</div>
-
-</div>
-
-<br>
-
-<button class="btn primary" onclick="saveSettings()">
-Salvar configurações
-</button>
-
-<button class="btn danger" onclick="resetData()">
-Apagar dados do protótipo
-</button>
-
-</div>
-
-<br>
-
-<div class="card">
-
-<h2>Segurança dos documentos</h2>
-
-<p class="muted">
-Esta versão é um protótipo e guarda os dados localmente neste navegador.
-Para uso real com documentos de clientes, vamos posteriormente colocar
-login, banco de dados e armazenamento protegido.
-</p>
-
-</div>
-
-</section>
-
-</main>
-
-</div>
-
-
+<!-- TOAST -->
 <div id="toast" class="toast"></div>
 
-<div id="modal" class="modal">
-<div class="modalbox" id="modalContent"></div>
+
+<!-- MODAL -->
+<div
+  id="modal"
+  class="modal"
+>
+  <div
+    id="modalContent"
+    class="modalbox"
+  ></div>
 </div>
 
 
 <script>
 
-const KEY='wm_crediario_v1';
-
-let db=JSON.parse(
-localStorage.getItem(KEY) ||
-'{"sales":[],"settings":{"advance":1.7,"fine":2,"interest":1,"store":"WM Eletrônicos"}}'
-);
-
-let lastSimulation=null;
-let pendingFront=null;
-let pendingBack=null;
+"use strict";
 
 
-const money=v=>
-new Intl.NumberFormat('pt-BR',{
-style:'currency',
-currency:'BRL'
-}).format(Number(v)||0);
+/* =========================
+   BANCO LOCAL
+========================= */
+
+const KEY = "wm_crediario_v2";
+
+const DEFAULT_DB = {
+  sales: [],
+  settings: {
+    advance: 1.70,
+    fine: 2,
+    interest: 1,
+    store: "WM Eletrônicos"
+  }
+};
+
+let db;
+
+try{
+
+  db = JSON.parse(
+    localStorage.getItem(KEY) || JSON.stringify(DEFAULT_DB)
+  );
+
+}catch(e){
+
+  db = JSON.parse(JSON.stringify(DEFAULT_DB));
+
+}
+
+let lastSimulation = null;
 
 
-const esc=s=>
-String(s??'').replace(/[&<>"']/g,m=>({
-'&':'&amp;',
-'<':'&lt;',
-'>':'&gt;',
-'"':'&quot;',
-"'":'&#39;'
-}[m]));
+/* =========================
+   FUNÇÕES BÁSICAS
+========================= */
+
+function money(value){
+
+  return new Intl.NumberFormat(
+    "pt-BR",
+    {
+      style:"currency",
+      currency:"BRL"
+    }
+  ).format(Number(value) || 0);
+
+}
+
+
+function esc(value){
+
+  return String(value ?? "")
+    .replace(/[&<>"']/g,function(m){
+
+      return {
+        "&":"&amp;",
+        "<":"&lt;",
+        ">":"&gt;",
+        '"':"&quot;",
+        "'":"&#39;"
+      }[m];
+
+    });
+
+}
 
 
 function saveDB(){
-localStorage.setItem(KEY,JSON.stringify(db));
-refresh();
+
+  try{
+
+    localStorage.setItem(
+      KEY,
+      JSON.stringify(db)
+    );
+
+  }catch(e){
+
+    toast(
+      "Não foi possível salvar. A foto pode ser muito grande."
+    );
+
+    return false;
+
+  }
+
+  refresh();
+
+  return true;
+
 }
 
 
-function toast(t){
-let e=document.getElementById('toast');
-e.textContent=t;
-e.style.display='block';
-setTimeout(()=>e.style.display='none',2200);
+function toast(message){
+
+  const el = document.getElementById("toast");
+
+  el.textContent = message;
+
+  el.style.display = "block";
+
+  clearTimeout(window.__toastTimer);
+
+  window.__toastTimer = setTimeout(
+    function(){
+      el.style.display = "none";
+    },
+    2500
+  );
+
 }
 
+
+/* =========================
+   NAVEGAÇÃO
+========================= */
 
 function showPage(id){
 
-document.querySelectorAll('.page')
-.forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll(".page")
+    .forEach(function(page){
 
-document.getElementById(id)
-.classList.add('active');
+      page.classList.remove("active");
 
-document.querySelectorAll('.nav button')
-.forEach(x=>
-x.classList.toggle('active',x.dataset.page===id)
-);
+    });
 
-refresh();
 
-window.scrollTo(0,0);
+  const page = document.getElementById(id);
+
+  if(!page){
+
+    return;
+
+  }
+
+
+  page.classList.add("active");
+
+
+  document.querySelectorAll(".nav button")
+    .forEach(function(button){
+
+      button.classList.toggle(
+        "active",
+        button.dataset.page === id
+      );
+
+    });
+
+
+  window.scrollTo({
+    top:0,
+    behavior:"instant"
+  });
+
+  refresh();
+
 }
 
 
-document.querySelectorAll('.nav button')
-.forEach(b=>
-b.onclick=()=>showPage(b.dataset.page)
-);
+function setupNavigation(){
 
+  document.querySelectorAll(".nav button")
+    .forEach(function(button){
+
+      button.addEventListener(
+        "click",
+        function(){
+
+          showPage(button.dataset.page);
+
+        }
+      );
+
+    });
+
+
+  document
+    .getElementById("newSaleBtn")
+    .addEventListener(
+      "click",
+      function(){
+
+        showPage("sale");
+
+      }
+    );
+
+}
+
+
+/* =========================
+   INPUTS
+========================= */
 
 function getInputs(){
 
-return {
+  return {
 
-client:document.getElementById('sClient').value.trim(),
+    client:
+      document.getElementById("sClient").value.trim(),
 
-cpf:document.getElementById('sCpf').value.trim(),
+    cpf:
+      document.getElementById("sCpf").value.trim(),
 
-birth:document.getElementById('sBirth').value,
+    phone:
+      document.getElementById("sPhone").value.trim(),
 
-phone:document.getElementById('sPhone').value.trim(),
+    birthDate:
+      document.getElementById("sBirthDate").value,
 
-cep:document.getElementById('sCep').value.trim(),
+    cep:
+      document.getElementById("sCep").value.trim(),
 
-street:document.getElementById('sStreet').value.trim(),
+    street:
+      document.getElementById("sStreet").value.trim(),
 
-number:document.getElementById('sNumber').value.trim(),
+    number:
+      document.getElementById("sNumber").value.trim(),
 
-neighborhood:document.getElementById('sNeighborhood').value.trim(),
+    complement:
+      document.getElementById("sComplement").value.trim(),
 
-city:document.getElementById('sCity').value.trim(),
+    neighborhood:
+      document.getElementById("sNeighborhood").value.trim(),
 
-docType:document.getElementById('sDocType').value,
+    city:
+      document.getElementById("sCity").value.trim(),
 
-docNumber:document.getElementById('sDocNumber').value.trim(),
+    state:
+      document.getElementById("sState").value.trim(),
 
-notes:document.getElementById('sNotes').value.trim(),
+    documentPhoto:
+      document.getElementById("sDocument").dataset.image || "",
 
-docFront:pendingFront||'',
+    product:
+      document.getElementById("sProduct").value.trim(),
 
-docBack:pendingBack||'',
+    imei:
+      document.getElementById("sImei").value.trim(),
 
-product:document.getElementById('sProduct').value.trim(),
+    value:
+      Number(document.getElementById("sValue").value) || 0,
 
-imei:document.getElementById('sImei').value.trim(),
+    down:
+      Number(document.getElementById("sDown").value) || 0,
 
-value:+document.getElementById('sValue').value||0,
+    months:
+      Number(document.getElementById("sMonths").value),
 
-down:+document.getElementById('sDown').value||0,
+    freq:
+      document.getElementById("sFreq").value,
 
-months:+document.getElementById('sMonths').value,
+    customerRate:
+      Number(document.getElementById("sCustomerRate").value) || 0,
 
-freq:document.getElementById('sFreq').value,
+    advanceRate:
+      Number(document.getElementById("sAdvanceRate").value) || 0,
 
-customerRate:+document.getElementById('sCustomerRate').value||0,
+    cost:
+      Number(document.getElementById("sCost").value) || 0,
 
-advanceRate:+document.getElementById('sAdvanceRate').value||0,
+    fine:
+      Number(document.getElementById("sFine").value) || 0,
 
-cost:+document.getElementById('sCost').value||0,
+    interest:
+      Number(document.getElementById("sInterest").value) || 0
 
-fine:+document.getElementById('sFine').value||0,
-
-interest:+document.getElementById('sInterest').value||0
-
-}
-
-}
-
-
-function previewDocument(inputId,previewId){
-
-const input=document.getElementById(inputId);
-
-const preview=document.getElementById(previewId);
-
-const file=input.files[0];
-
-if(!file)return;
-
-const reader=new FileReader();
-
-reader.onload=function(e){
-
-if(inputId==='sDocFront')pendingFront=e.target.result;
-
-if(inputId==='sDocBack')pendingBack=e.target.result;
-
-preview.innerHTML=
-`<img src="${e.target.result}" style="max-width:180px;max-height:120px;border-radius:10px;border:1px solid #ddd">`;
-
-};
-
-reader.readAsDataURL(file);
+  };
 
 }
 
+
+/* =========================
+   PERIODICIDADE
+========================= */
 
 function periods(months,freq){
 
-return freq==='weekly'
-?months*4
-:freq==='biweekly'
-?months*2
-:months;
+  if(freq === "weekly"){
+    return months * 4;
+  }
+
+  if(freq === "biweekly"){
+    return months * 2;
+  }
+
+  return months;
 
 }
 
 
-function addPeriod(d,freq,n){
+function addPeriod(date,freq,n){
 
-let x=new Date(d);
+  const d = new Date(date);
 
-if(freq==='weekly')
-x.setDate(x.getDate()+7*n);
+  if(freq === "weekly"){
 
-else if(freq==='biweekly')
-x.setDate(x.getDate()+15*n);
+    d.setDate(
+      d.getDate() + (7 * n)
+    );
 
-else
-x.setMonth(x.getMonth()+n);
+  }else if(freq === "biweekly"){
 
-return x;
+    d.setDate(
+      d.getDate() + (15 * n)
+    );
 
-}
+  }else{
 
+    d.setMonth(
+      d.getMonth() + n
+    );
 
-function currentStatus(row){
+  }
 
-if(row.status==='Pago')
-return 'Pago';
-
-const due=new Date(row.d);
-
-const today=new Date();
-
-today.setHours(0,0,0,0);
-
-due.setHours(0,0,0,0);
-
-return due<today?'Vencida':'A vencer';
+  return d;
 
 }
 
+
+/* =========================
+   SIMULAÇÃO
+========================= */
 
 function simulate(){
 
-let x=getInputs();
+  const x = getInputs();
 
-if(x.value<=x.down||x.value<=0){
 
-toast('Confira o valor e a entrada.');
+  if(!x.client){
 
-return;
+    toast("Informe o nome do cliente.");
+
+    return;
+
+  }
+
+
+  if(x.value <= 0){
+
+    toast("Informe o valor do aparelho.");
+
+    return;
+
+  }
+
+
+  if(x.down >= x.value){
+
+    toast("A entrada precisa ser menor que o valor.");
+
+    return;
+
+  }
+
+
+  const n = periods(
+    x.months,
+    x.freq
+  );
+
+
+  const financed =
+    x.value - x.down;
+
+
+  const rate =
+    x.customerRate / 100;
+
+
+  let totalFin;
+
+
+  if(rate > 0){
+
+    totalFin =
+      financed *
+      Math.pow(
+        1 + rate,
+        x.months
+      );
+
+  }else{
+
+    totalFin = financed;
+
+  }
+
+
+  const raw =
+    totalFin / n;
+
+
+  const installments =
+    Array(n).fill(raw);
+
+
+  installments[n - 1] =
+    totalFin -
+    raw * (n - 1);
+
+
+  const today =
+    new Date();
+
+
+  const rows =
+    installments.map(
+      function(value,index){
+
+        return {
+
+          n:index + 1,
+
+          d:addPeriod(
+            today,
+            x.freq,
+            index + 1
+          ),
+
+          value:value,
+
+          status:"A vencer"
+
+        };
+
+      }
+    );
+
+
+  let advance = 0;
+
+
+  rows.forEach(
+    function(row,index){
+
+      advance +=
+        row.value *
+        (x.advanceRate / 100) *
+        ((n - index) / 2);
+
+    }
+  );
+
+
+  const net =
+    x.down +
+    totalFin -
+    advance;
+
+
+  const profit =
+    net -
+    x.cost;
+
+
+  lastSimulation = {
+
+    ...x,
+
+    n,
+
+    financed,
+
+    totalFin,
+
+    inst:rows,
+
+    advance,
+
+    net,
+
+    profit
+
+  };
+
+
+  document.getElementById("result").innerHTML = `
+
+    <div class="muted">
+      Valor do aparelho
+    </div>
+
+    <strong>
+      ${money(x.value)}
+    </strong>
+
+
+    <div class="muted" style="margin-top:10px">
+      Entrada
+    </div>
+
+    <strong>
+      ${money(x.down)}
+    </strong>
+
+
+    <div class="muted" style="margin-top:10px">
+      Valor financiado
+    </div>
+
+    <strong>
+      ${money(financed)}
+    </strong>
+
+
+    <div class="muted" style="margin-top:10px">
+      Número de parcelas
+    </div>
+
+    <strong>
+      ${n}
+    </strong>
+
+
+    <div class="muted" style="margin-top:10px">
+      Valor aproximado da parcela
+    </div>
+
+    <div class="big">
+      ${money(raw)}
+    </div>
+
+
+    <hr>
+
+
+    <div class="row space">
+      <span>Total do cliente</span>
+      <strong>
+        ${money(x.down + totalFin)}
+      </strong>
+    </div>
+
+
+    <div class="row space">
+      <span>Antecipação estimada</span>
+      <strong class="red">
+        -${money(advance)}
+      </strong>
+    </div>
+
+
+    <div class="row space">
+      <span>Líquido estimado</span>
+      <strong class="green">
+        ${money(net)}
+      </strong>
+    </div>
+
+
+    <div class="row space" style="margin-top:10px">
+      <span>Lucro estimado</span>
+      <strong>
+        ${money(profit)}
+      </strong>
+    </div>
+
+
+    <br>
+
+
+    <div class="row">
+
+      <button
+        type="button"
+        class="btn primary"
+        id="saveSaleBtn"
+      >
+        💾 Salvar venda
+      </button>
+
+      <button
+        type="button"
+        class="btn secondary"
+        id="contractBtn"
+      >
+        📄 Contrato
+      </button>
+
+    </div>
+
+  `;
+
+
+  document.getElementById("schedule").innerHTML = `
+
+    <table>
+
+      <thead>
+
+        <tr>
+          <th>#</th>
+          <th>Vencimento</th>
+          <th>Valor</th>
+          <th>Status</th>
+        </tr>
+
+      </thead>
+
+      <tbody>
+
+        ${
+          rows.map(function(row){
+
+            return `
+
+              <tr>
+
+                <td>
+                  ${row.n}
+                </td>
+
+                <td>
+                  ${row.d.toLocaleDateString("pt-BR")}
+                </td>
+
+                <td>
+                  ${money(row.value)}
+                </td>
+
+                <td>
+                  <span class="pill open">
+                    ${row.status}
+                  </span>
+                </td>
+
+              </tr>
+
+            `;
+
+          }).join("")
+        }
+
+      </tbody>
+
+    </table>
+
+  `;
+
+
+  document
+    .getElementById("saveSaleBtn")
+    .addEventListener(
+      "click",
+      saveSale
+    );
+
+
+  document
+    .getElementById("contractBtn")
+    .addEventListener(
+      "click",
+      printContract
+    );
 
 }
 
-let n=periods(x.months,x.freq);
 
-let financed=x.value-x.down;
-
-let r=x.customerRate/100;
-
-let totalFin=
-r
-?financed*Math.pow(1+r,x.months)
-:financed;
-
-let raw=totalFin/n;
-
-let inst=Array(n).fill(raw);
-
-inst[n-1]=totalFin-raw*(n-1);
-
-let today=new Date();
-
-let rows=inst.map((v,i)=>({
-
-n:i+1,
-
-d:addPeriod(today,x.freq,i+1),
-
-value:v,
-
-status:'A vencer'
-
-}));
-
-
-let advance=rows.reduce(
-(sum,row,i)=>
-sum+
-row.value*
-(x.advanceRate/100)*
-((n-i)/2),
-0
-);
-
-
-let net=x.down+totalFin-advance;
-
-let profit=net-x.cost;
-
-
-lastSimulation={
-
-...x,
-
-n,
-
-financed,
-
-totalFin,
-
-inst:rows,
-
-advance,
-
-net,
-
-profit
-
-};
-
-
-document.getElementById('result').innerHTML=`
-
-<div class="muted">
-Valor do aparelho
-</div>
-
-<strong>
-${money(x.value)}
-</strong>
-
-<div class="muted" style="margin-top:10px">
-Entrada
-</div>
-
-<strong>
-${money(x.down)}
-</strong>
-
-<div class="muted" style="margin-top:10px">
-Valor financiado
-</div>
-
-<strong>
-${money(financed)}
-</strong>
-
-<div class="muted" style="margin-top:10px">
-Parcelas
-</div>
-
-<strong>
-${n}
-</strong>
-
-<div class="muted" style="margin-top:10px">
-Valor da parcela
-</div>
-
-<div class="big">
-${money(raw)}
-</div>
-
-<hr style="border:0;border-top:1px solid #dbe7ff;margin:16px 0">
-
-<div class="row" style="justify-content:space-between">
-<span>Total do cliente</span>
-<strong>${money(x.down+totalFin)}</strong>
-</div>
-
-<div class="row" style="justify-content:space-between">
-<span>Antecipação estimada</span>
-<strong class="red">
--${money(advance)}
-</strong>
-</div>
-
-<div class="row" style="justify-content:space-between">
-<span>Entrada + líquido estimado</span>
-<strong class="green">
-${money(net)}
-</strong>
-</div>
-
-<div class="row" style="justify-content:space-between;margin-top:10px">
-<span>Lucro estimado</span>
-<strong>
-${money(profit)}
-</strong>
-</div>
-
-<br>
-
-<div class="row">
-
-<button class="btn primary" onclick="saveSale()">
-💾 Salvar venda
-</button>
-
-<button class="btn secondary" onclick="printContract()">
-📄 Contrato
-</button>
-
-</div>
-`;
-
-
-document.getElementById('schedule').innerHTML=
-
-'<table><thead><tr>'+
-'<th>#</th>'+
-'<th>Vencimento</th>'+
-'<th>Valor</th>'+
-'<th>Status</th>'+
-'</tr></thead><tbody>'+
-
-rows.map(r=>
-`<tr>
-<td>${r.n}</td>
-<td>${r.d.toLocaleDateString('pt-BR')}</td>
-<td>${money(r.value)}</td>
-<td>
-<span class="pill open">
-${r.status}
-</span>
-</td>
-</tr>`
-).join('')+
-
-'</tbody></table>';
-
-}
-
+/* =========================
+   SALVAR VENDA
+========================= */
 
 function saveSale(){
 
-if(!lastSimulation){
+  if(!lastSimulation){
 
-toast('Simule primeiro.');
+    toast("Simule primeiro.");
 
-return;
+    return;
+
+  }
+
+
+  const x =
+    lastSimulation;
+
+
+  if(!x.client){
+
+    toast("Informe o nome do cliente.");
+
+    return;
+
+  }
+
+
+  const id =
+    "WM-" +
+    Date.now()
+      .toString()
+      .slice(-8);
+
+
+  const sale = {
+
+    id,
+
+    created:
+      new Date().toISOString(),
+
+    ...x,
+
+    inst:
+      x.inst.map(
+        function(row){
+
+          return {
+
+            ...row,
+
+            d:
+              row.d.toISOString()
+
+          };
+
+        }
+      )
+
+  };
+
+
+  db.sales.unshift(
+    sale
+  );
+
+
+  if(saveDB()){
+
+    toast(
+      "Venda salva: " + id
+    );
+
+    showPage("sales");
+
+  }
 
 }
 
-let x=lastSimulation;
 
-if(!x.client){
-
-toast('Informe o nome do cliente.');
-
-return;
-
-}
-
-
-const id=
-'WM-'+
-Date.now().toString().slice(-8);
-
-
-db.sales.unshift({
-
-id,
-
-created:new Date().toISOString(),
-
-...x,
-
-inst:x.inst.map(r=>({
-
-...r,
-
-d:r.d.toISOString()
-
-}))
-
-});
-
-
-saveDB();
-
-toast('Venda salva: '+id);
-
-showPage('sales');
-
-}
-
+/* =========================
+   CONTRATO
+========================= */
 
 function printContract(){
 
-if(!lastSimulation){
+  if(!lastSimulation){
 
-toast('Simule primeiro.');
+    toast("Simule primeiro.");
 
-return;
+    return;
 
-}
-
-let x=lastSimulation;
-
-let address=
-[
-x.street,
-x.number,
-x.neighborhood,
-x.city,
-x.cep
-]
-.filter(Boolean)
-.join(', ');
+  }
 
 
-let html=`
+  const x =
+    lastSimulation;
 
-<html>
+
+  const address = [
+
+    x.street,
+
+    x.number,
+
+    x.complement,
+
+    x.neighborhood,
+
+    x.city,
+
+    x.state,
+
+    x.cep
+
+  ]
+  .filter(Boolean)
+  .join(", ");
+
+
+  const birth =
+    x.birthDate
+      ? new Date(
+          x.birthDate + "T00:00:00"
+        ).toLocaleDateString("pt-BR")
+      : "";
+
+
+  const html = `
+
+<!DOCTYPE html>
+
+<html lang="pt-BR">
 
 <head>
+
+<meta charset="UTF-8">
 
 <title>
 Contrato ${esc(x.product)}
@@ -1238,22 +1963,31 @@ Contrato ${esc(x.product)}
 <style>
 
 body{
-font-family:Arial;
-padding:40px;
-line-height:1.5
+  font-family:Arial,sans-serif;
+  padding:40px;
+  line-height:1.5;
+  color:#111;
 }
 
-h1{text-align:center}
+h1,
+h2{
+  text-align:center;
+}
 
 table{
-width:100%;
-border-collapse:collapse
+  width:100%;
+  border-collapse:collapse;
+  margin-top:20px;
 }
 
-td,th{
-border:1px solid #bbb;
-padding:7px;
-text-align:left
+td,
+th{
+  border:1px solid #aaa;
+  padding:8px;
+}
+
+.assinatura{
+  margin-top:80px;
 }
 
 </style>
@@ -1270,6 +2004,7 @@ ${esc(db.settings.store)}
 CONTRATO DE VENDA PARCELADA
 </h2>
 
+
 <p>
 
 <b>Cliente:</b>
@@ -1282,30 +2017,24 @@ ${esc(x.cpf)}
 
 <br>
 
-<b>Data de nascimento:</b>
-${x.birth?new Date(x.birth+'T12:00:00').toLocaleDateString('pt-BR'):'Não informado'}
-
-<br>
-
 <b>WhatsApp:</b>
 ${esc(x.phone)}
 
+<br>
+
+<b>Data de nascimento:</b>
+${esc(birth)}
+
 </p>
+
 
 <p>
 
 <b>Endereço:</b>
-${esc(address||'Não informado')}
+${esc(address)}
 
 </p>
 
-<p>
-
-<b>Documento:</b>
-${esc(x.docType||'Não informado')}
-${esc(x.docNumber||'')}
-
-</p>
 
 <p>
 
@@ -1319,67 +2048,107 @@ ${esc(x.imei)}
 
 </p>
 
+
 <p>
 
 <b>Valor:</b>
 ${money(x.value)}
 
-&nbsp;
+&nbsp;&nbsp;
 
 <b>Entrada:</b>
 ${money(x.down)}
 
-&nbsp;
+&nbsp;&nbsp;
 
 <b>Saldo:</b>
 ${money(x.financed)}
 
 </p>
 
+
 <p>
 
 <b>Prazo:</b>
 ${x.months} meses
 
-&nbsp;
+<br>
 
 <b>Periodicidade:</b>
 ${
-x.freq==='weekly'
-?'semanal'
-:x.freq==='biweekly'
-?'quinzenal'
-:'mensal'
+  x.freq === "weekly"
+  ? "Semanal"
+  : x.freq === "biweekly"
+  ? "Quinzenal"
+  : "Mensal"
 }
 
-&nbsp;
+<br>
 
 <b>Parcelas:</b>
 ${x.n}
 
 </p>
 
+
 <table>
 
 <tr>
-<th>#</th>
-<th>Vencimento</th>
-<th>Valor</th>
+
+<th>
+#
+</th>
+
+<th>
+Vencimento
+</th>
+
+<th>
+Valor
+</th>
+
 </tr>
 
+
 ${
-x.inst.map(r=>
-`<tr>
-<td>${r.n}</td>
-<td>${r.d.toLocaleDateString('pt-BR')}</td>
-<td>${money(r.value)}</td>
-</tr>`
-).join('')
+  x.inst.map(function(row){
+
+    return `
+
+      <tr>
+
+        <td>
+          ${row.n}
+        </td>
+
+        <td>
+          ${row.d.toLocaleDateString("pt-BR")}
+        </td>
+
+        <td>
+          ${money(row.value)}
+        </td>
+
+      </tr>
+
+    `;
+
+  }).join("")
 }
+
 
 </table>
 
-<br><br>
+
+<p>
+
+Em caso de atraso, poderão ser aplicados os encargos previstos no contrato,
+observados os limites legais aplicáveis.
+
+</p>
+
+
+<div class="assinatura">
 
 <p>
 ____________________________________
@@ -1387,871 +2156,1431 @@ ____________________________________
 Comprador
 </p>
 
+
 <p>
 ____________________________________
 <br>
 ${esc(db.settings.store)}
 </p>
 
+</div>
+
+
 </body>
 
 </html>
+
 `;
 
 
-let w=window.open('','_blank');
+  const win =
+    window.open(
+      "",
+      "_blank"
+    );
 
-if(!w){
 
-toast('Permita pop-ups no navegador.');
+  if(!win){
 
-return;
+    toast(
+      "O navegador bloqueou a abertura do contrato."
+    );
+
+    return;
+
+  }
+
+
+  win.document.write(
+    html
+  );
+
+  win.document.close();
+
+  setTimeout(
+    function(){
+
+      win.print();
+
+    },
+    500
+  );
 
 }
 
-w.document.write(html);
 
-w.document.close();
-
-w.print();
-
-}
-
+/* =========================
+   LIMPAR
+========================= */
 
 function clearSale(){
 
-document.querySelectorAll('#sale input')
-.forEach(e=>{
+  const ids = [
 
-if(
-e.id!=='sValue' &&
-e.id!=='sDown' &&
-e.id!=='sProduct' &&
-e.id!=='sMonths' &&
-e.id!=='sFreq' &&
-e.id!=='sCustomerRate' &&
-e.id!=='sAdvanceRate' &&
-e.id!=='sCost' &&
-e.id!=='sFine' &&
-e.id!=='sInterest'
-){
+    "sClient",
+    "sCpf",
+    "sPhone",
+    "sBirthDate",
+    "sCep",
+    "sStreet",
+    "sNumber",
+    "sComplement",
+    "sNeighborhood",
+    "sCity",
+    "sState",
+    "sImei"
 
-e.value='';
+  ];
+
+
+  ids.forEach(
+    function(id){
+
+      document.getElementById(id).value = "";
+
+    }
+  );
+
+
+  document.getElementById(
+    "sDocument"
+  ).value = "";
+
+
+  document.getElementById(
+    "sDocument"
+  ).dataset.image = "";
+
+
+  document.getElementById(
+    "documentPreview"
+  ).style.display = "none";
+
+
+  document.getElementById(
+    "result"
+  ).innerHTML = `
+
+    <div class="muted">
+      Preencha os dados e clique em Simular.
+    </div>
+
+  `;
+
+
+  document.getElementById(
+    "schedule"
+  ).innerHTML = `
+
+    <div class="muted">
+      A simulação aparecerá aqui.
+    </div>
+
+  `;
+
+
+  lastSimulation = null;
+
+
+  toast(
+    "Formulário limpo."
+  );
 
 }
 
-});
+
+/* =========================
+   FOTO DOCUMENTO
+========================= */
+
+function setupDocumentPhoto(){
+
+  const input =
+    document.getElementById(
+      "sDocument"
+    );
 
 
-document.getElementById('sNotes').value='';
+  input.addEventListener(
+    "change",
+    function(){
 
-document.getElementById('frontPreview').innerHTML='';
+      const file =
+        input.files &&
+        input.files[0];
 
-document.getElementById('backPreview').innerHTML='';
 
-document.getElementById('sDocFront').value='';
+      if(!file){
 
-document.getElementById('sDocBack').value='';
+        return;
 
-pendingFront=null;
+      }
 
-pendingBack=null;
 
-document.getElementById('result').innerHTML=
-'<div class="muted">Preencha os dados e clique em Simular.</div>';
+      if(!file.type.startsWith("image/")){
 
-document.getElementById('schedule').innerHTML=
-'<div class="muted">A simulação aparecerá aqui.</div>';
+        toast(
+          "Escolha uma imagem."
+        );
 
-lastSimulation=null;
+        return;
+
+      }
+
+
+      const reader =
+        new FileReader();
+
+
+      reader.onload =
+        function(event){
+
+          const image =
+            new Image();
+
+
+          image.onload =
+            function(){
+
+              const maxWidth = 1000;
+
+              let width =
+                image.width;
+
+              let height =
+                image.height;
+
+
+              if(width > maxWidth){
+
+                height =
+                  height *
+                  (maxWidth / width);
+
+                width =
+                  maxWidth;
+
+              }
+
+
+              const canvas =
+                document.createElement(
+                  "canvas"
+                );
+
+
+              canvas.width =
+                width;
+
+              canvas.height =
+                height;
+
+
+              const ctx =
+                canvas.getContext(
+                  "2d"
+                );
+
+
+              ctx.drawImage(
+                image,
+                0,
+                0,
+                width,
+                height
+              );
+
+
+              const compressed =
+                canvas.toDataURL(
+                  "image/jpeg",
+                  0.70
+                );
+
+
+              input.dataset.image =
+                compressed;
+
+
+              document.getElementById(
+                "documentPreviewImg"
+              ).src =
+                compressed;
+
+
+              document.getElementById(
+                "documentPreview"
+              ).style.display =
+                "block";
+
+
+              toast(
+                "Documento carregado."
+              );
+
+            };
+
+
+          image.src =
+            event.target.result;
+
+        };
+
+
+      reader.readAsDataURL(
+        file
+      );
+
+    }
+  );
 
 }
 
+
+/* =========================
+   ATUALIZAR STATUS
+========================= */
+
+function updateOverdueStatuses(){
+
+  const today =
+    new Date();
+
+
+  today.setHours(
+    0,0,0,0
+  );
+
+
+  let changed = false;
+
+
+  db.sales.forEach(
+    function(sale){
+
+      sale.inst.forEach(
+        function(row){
+
+          if(row.status === "Pago"){
+            return;
+          }
+
+
+          const date =
+            new Date(row.d);
+
+
+          date.setHours(
+            0,0,0,0
+          );
+
+
+          if(date < today){
+
+            if(row.status !== "Vencida"){
+
+              row.status =
+                "Vencida";
+
+              changed = true;
+
+            }
+
+          }else{
+
+            if(row.status !== "Vencida"){
+
+              row.status =
+                "A vencer";
+
+            }
+
+          }
+
+        }
+      );
+
+    }
+  );
+
+
+  if(changed){
+
+    localStorage.setItem(
+      KEY,
+      JSON.stringify(db)
+    );
+
+  }
+
+}
+
+
+/* =========================
+   PAINEL
+========================= */
 
 function refresh(){
 
-let sales=db.sales;
+  updateOverdueStatuses();
 
 
-sales.forEach(s=>{
+  const sales =
+    db.sales;
 
-s.inst.forEach(r=>{
 
-if(r.status!=='Pago'){
+  const sold =
+    sales.reduce(
+      function(total,sale){
 
-r.status=currentStatus(r);
+        return total +
+          Number(sale.value || 0);
+
+      },
+      0
+    );
+
+
+  const receivable =
+    sales.reduce(
+      function(total,sale){
+
+        return total +
+          sale.inst
+            .filter(
+              function(row){
+
+                return row.status !== "Pago";
+
+              }
+            )
+            .reduce(
+              function(sum,row){
+
+                return sum +
+                  Number(row.value || 0);
+
+              },
+              0
+            );
+
+      },
+      0
+    );
+
+
+  const late =
+    sales.reduce(
+      function(total,sale){
+
+        return total +
+          sale.inst.filter(
+            function(row){
+
+              return row.status === "Vencida";
+
+            }
+          ).length;
+
+      },
+      0
+    );
+
+
+  const paid =
+    sales.reduce(
+      function(total,sale){
+
+        return total +
+          sale.inst.filter(
+            function(row){
+
+              return row.status === "Pago";
+
+            }
+          ).length;
+
+      },
+      0
+    );
+
+
+  document.getElementById(
+    "kSold"
+  ).textContent =
+    money(sold);
+
+
+  document.getElementById(
+    "kReceivable"
+  ).textContent =
+    money(receivable);
+
+
+  document.getElementById(
+    "kLate"
+  ).textContent =
+    late;
+
+
+  document.getElementById(
+    "kPaid"
+  ).textContent =
+    paid;
+
+
+  /* ÚLTIMAS VENDAS */
+
+  if(!sales.length){
+
+    document.getElementById(
+      "recentSales"
+    ).innerHTML = `
+
+      <div class="muted">
+        Nenhuma venda salva ainda.
+      </div>
+
+    `;
+
+  }else{
+
+    document.getElementById(
+      "recentSales"
+    ).innerHTML = `
+
+      <div class="table-wrap">
+
+      <table>
+
+      <tr>
+
+        <th>Venda</th>
+        <th>Cliente</th>
+        <th>Valor</th>
+
+      </tr>
+
+      ${
+        sales.slice(0,6)
+          .map(function(sale){
+
+            return `
+
+              <tr>
+
+                <td>
+                  ${esc(sale.id)}
+                </td>
+
+                <td>
+                  ${esc(sale.client)}
+                </td>
+
+                <td>
+                  ${money(sale.value)}
+                </td>
+
+              </tr>
+
+            `;
+
+          }).join("")
+      }
+
+      </table>
+
+      </div>
+
+    `;
+
+  }
+
+
+  /* ATENÇÃO */
+
+  const overdue = [];
+
+
+  sales.forEach(
+    function(sale){
+
+      sale.inst.forEach(
+        function(row){
+
+          if(row.status === "Vencida"){
+
+            overdue.push({
+              sale:sale,
+              row:row
+            });
+
+          }
+
+        }
+      );
+
+    }
+  );
+
+
+  if(!overdue.length){
+
+    document.getElementById(
+      "attention"
+    ).innerHTML =
+      "Nenhuma parcela vencida.";
+
+  }else{
+
+    document.getElementById(
+      "attention"
+    ).innerHTML =
+      overdue
+        .slice(0,8)
+        .map(function(item){
+
+          return `
+
+            <div
+              style="
+                padding:10px 0;
+                border-bottom:1px solid #eee
+              "
+            >
+
+              <b>
+                ${esc(item.sale.client)}
+              </b>
+
+              <br>
+
+              Parcela ${item.row.n}
+              —
+              ${money(item.row.value)}
+
+            </div>
+
+          `;
+
+        }).join("");
+
+  }
+
+
+  /* VENDAS */
+
+  if(!sales.length){
+
+    document.getElementById(
+      "salesTable"
+    ).innerHTML = `
+
+      <div class="muted">
+        Nenhuma venda cadastrada.
+      </div>
+
+    `;
+
+  }else{
+
+    document.getElementById(
+      "salesTable"
+    ).innerHTML = `
+
+      <div class="table-wrap">
+
+      <table>
+
+      <tr>
+
+        <th>ID</th>
+        <th>Cliente</th>
+        <th>Produto</th>
+        <th>Total</th>
+        <th>Parcelas</th>
+        <th>Ação</th>
+
+      </tr>
+
+      ${
+        sales.map(function(sale){
+
+          return `
+
+            <tr>
+
+              <td>
+                ${esc(sale.id)}
+              </td>
+
+              <td>
+                ${esc(sale.client)}
+              </td>
+
+              <td>
+                ${esc(sale.product)}
+              </td>
+
+              <td>
+                ${money(sale.value)}
+              </td>
+
+              <td>
+                ${sale.n}
+              </td>
+
+              <td>
+
+                <button
+                  type="button"
+                  class="btn secondary"
+                  onclick="viewSale('${sale.id}')"
+                >
+                  Abrir
+                </button>
+
+              </td>
+
+            </tr>
+
+          `;
+
+        }).join("")
+      }
+
+      </table>
+
+      </div>
+
+    `;
+
+  }
+
+
+  /* CLIENTES */
+
+  const map = {};
+
+
+  sales.forEach(
+    function(sale){
+
+      const key =
+        sale.cpf ||
+        sale.client;
+
+
+      if(!map[key]){
+
+        map[key] = {
+
+          name:sale.client,
+
+          cpf:sale.cpf,
+
+          phone:sale.phone,
+
+          birthDate:sale.birthDate,
+
+          address:[
+            sale.street,
+            sale.number,
+            sale.neighborhood,
+            sale.city
+          ]
+          .filter(Boolean)
+          .join(", "),
+
+          photo:sale.documentPhoto,
+
+          qty:0
+
+        };
+
+      }
+
+
+      map[key].qty++;
+
+    }
+  );
+
+
+  const clients =
+    Object.values(map);
+
+
+  if(!clients.length){
+
+    document.getElementById(
+      "clientsTable"
+    ).innerHTML = `
+
+      <div class="muted">
+        Nenhum cliente cadastrado.
+      </div>
+
+    `;
+
+  }else{
+
+    document.getElementById(
+      "clientsTable"
+    ).innerHTML = `
+
+      <div class="table-wrap">
+
+      <table>
+
+      <tr>
+
+        <th>Cliente</th>
+        <th>CPF</th>
+        <th>WhatsApp</th>
+        <th>Nascimento</th>
+        <th>Endereço</th>
+        <th>Vendas</th>
+
+      </tr>
+
+      ${
+        clients.map(function(client){
+
+          const birth =
+            client.birthDate
+            ? new Date(
+                client.birthDate +
+                "T00:00:00"
+              ).toLocaleDateString("pt-BR")
+            : "-";
+
+
+          return `
+
+            <tr>
+
+              <td>
+                ${esc(client.name)}
+              </td>
+
+              <td>
+                ${esc(client.cpf || "-")}
+              </td>
+
+              <td>
+                ${esc(client.phone || "-")}
+              </td>
+
+              <td>
+                ${birth}
+              </td>
+
+              <td>
+                ${esc(client.address || "-")}
+              </td>
+
+              <td>
+                ${client.qty}
+              </td>
+
+            </tr>
+
+          `;
+
+        }).join("")
+      }
+
+      </table>
+
+      </div>
+
+    `;
+
+  }
 
 }
 
-});
 
-});
-
-
-let sold=
-sales.reduce((a,s)=>a+s.value,0);
-
-
-let rec=
-sales.reduce(
-(a,s)=>
-a+
-s.inst
-.filter(r=>r.status!=='Pago')
-.reduce((z,r)=>z+r.value,0),
-0
-);
-
-
-let late=
-sales.reduce(
-(a,s)=>
-a+
-s.inst.filter(r=>r.status==='Vencida').length,
-0
-);
-
-
-let paid=
-sales.reduce(
-(a,s)=>
-a+
-s.inst.filter(r=>r.status==='Pago').length,
-0
-);
-
-
-document.getElementById('kSold').textContent=money(sold);
-
-document.getElementById('kReceivable').textContent=money(rec);
-
-document.getElementById('kLate').textContent=late;
-
-document.getElementById('kPaid').textContent=paid;
-
-
-document.getElementById('recentSales').innerHTML=
-
-sales.length
-
-?
-
-'<table><tr>'+
-'<th>Venda</th>'+
-'<th>Cliente</th>'+
-'<th>Valor</th>'+
-'</tr>'+
-
-sales.slice(0,6).map(s=>
-
-`<tr>
-<td>${esc(s.id)}</td>
-<td>${esc(s.client)}</td>
-<td>${money(s.value)}</td>
-</tr>`
-
-).join('')+
-
-'</table>'
-
-:
-
-'<div class="muted">
-Nenhuma venda salva ainda.
-</div>';
-
-
-let l=
-
-sales.flatMap(s=>
-
-s.inst
-.filter(r=>r.status==='Vencida')
-.map(r=>({s,r}))
-
-);
-
-
-document.getElementById('attention').innerHTML=
-
-l.length
-
-?
-
-l.slice(0,8).map(a=>
-
-`<div style="padding:9px 0;border-bottom:1px solid #eee">
-
-<b>
-${esc(a.s.client)}
-</b>
-
-— parcela ${a.r.n}
-
-—
-
-${money(a.r.value)}
-
-</div>`
-
-).join('')
-
-:
-
-'Nenhuma parcela vencida.';
-
-
-document.getElementById('salesTable').innerHTML=
-
-sales.length
-
-?
-
-'<table><tr>'+
-'<th>ID</th>'+
-'<th>Cliente</th>'+
-'<th>Produto</th>'+
-'<th>Total</th>'+
-'<th>Parcelas</th>'+
-'<th>Ações</th>'+
-'</tr>'+
-
-sales.map(s=>
-
-`<tr>
-
-<td>${esc(s.id)}</td>
-
-<td>${esc(s.client)}</td>
-
-<td>${esc(s.product)}</td>
-
-<td>${money(s.value)}</td>
-
-<td>${s.n}</td>
-
-<td>
-<button class="btn secondary"
-onclick="viewSale('${s.id}')">
-Abrir
-</button>
-</td>
-
-</tr>`
-
-).join('')+
-
-'</table>'
-
-:
-
-'<div class="muted">
-Nenhuma venda cadastrada.
-</div>';
-
-
-let map={};
-
-
-sales.forEach(s=>{
-
-let key=s.cpf||s.client;
-
-if(!map[key]){
-
-map[key]={
-name:s.client,
-cpf:s.cpf,
-birth:s.birth,
-phone:s.phone,
-qty:0
-};
-
-}
-
-map[key].qty++;
-
-});
-
-
-let cs=Object.values(map);
-
-
-document.getElementById('clientsTable').innerHTML=
-
-cs.length
-
-?
-
-'<table><tr>'+
-'<th>Cliente</th>'+
-'<th>CPF</th>'+
-'<th>Nascimento</th>'+
-'<th>WhatsApp</th>'+
-'<th>Vendas</th>'+
-'<th>Ações</th>'+
-'</tr>'+
-
-cs.map(c=>
-
-`<tr>
-
-<td>${esc(c.name)}</td>
-
-<td>${esc(c.cpf)}</td>
-
-<td>
-${
-c.birth
-?
-new Date(c.birth+'T12:00:00').toLocaleDateString('pt-BR')
-:'-'
-}
-</td>
-
-<td>${esc(c.phone)}</td>
-
-<td>${c.qty}</td>
-
-<td>
-
-<button class="btn secondary"
-onclick="viewClient('${encodeURIComponent(c.cpf||c.name)}')">
-
-Abrir
-
-</button>
-
-</td>
-
-</tr>`
-
-).join('')+
-
-'</table>'
-
-:
-
-'<div class="muted">
-Nenhum cliente.
-</div>';
-
-
-localStorage.setItem(KEY,JSON.stringify(db));
-
-}
-
-
-function viewClient(encoded){
-
-let key=decodeURIComponent(encoded);
-
-let sales=db.sales.filter(
-s=>(s.cpf||s.client)===key
-);
-
-if(!sales.length)return;
-
-
-let s=sales[0];
-
-
-let address=
-[
-s.street,
-s.number,
-s.neighborhood,
-s.city,
-s.cep
-]
-.filter(Boolean)
-.join(', ');
-
-
-let paid=sales.reduce(
-(a,s)=>
-a+
-s.inst
-.filter(r=>r.status==='Pago')
-.reduce((z,r)=>z+r.value,0),
-0
-);
-
-
-let open=sales.reduce(
-(a,s)=>
-a+
-s.inst
-.filter(r=>r.status!=='Pago')
-.reduce((z,r)=>z+r.value,0),
-0
-);
-
-
-document.getElementById('modalContent').innerHTML=`
-
-<div class="client-header">
-
-<h2>
-👤 ${esc(s.client)}
-</h2>
-
-<div class="muted">
-CPF: ${esc(s.cpf||'-')}
-</div>
-
-</div>
-
-
-<div class="grid">
-
-<div>
-
-<h3>
-Dados pessoais
-</h3>
-
-<p>
-<b>Nascimento:</b>
-${
-s.birth
-?
-new Date(s.birth+'T12:00:00').toLocaleDateString('pt-BR')
-:'-'
-}
-</p>
-
-<p>
-<b>WhatsApp:</b>
-${esc(s.phone||'-')}
-</p>
-
-<p>
-<b>Documento:</b>
-${esc(s.docType||'-')}
-${s.docNumber?' — '+esc(s.docNumber):''}
-</p>
-
-</div>
-
-
-<div>
-
-<h3>
-Endereço
-</h3>
-
-<p>
-${esc(address||'Não informado')}
-</p>
-
-</div>
-
-</div>
-
-
-<h3>
-Resumo financeiro
-</h3>
-
-<p>
-🛒 Vendas:
-<b>${sales.length}</b>
-</p>
-
-<p>
-✅ Já pago:
-<b class="green">${money(paid)}</b>
-</p>
-
-<p>
-💰 Em aberto:
-<b class="red">${money(open)}</b>
-</p>
-
-
-<h3>
-Documentos
-</h3>
-
-<div class="doc-preview">
-
-${
-s.docFront
-?
-`<div>
-<div class="muted">Frente</div>
-<img src="${s.docFront}">
-</div>`
-:'<div class="muted">Frente não cadastrada.</div>'
-}
-
-${
-s.docBack
-?
-`<div>
-<div class="muted">Verso</div>
-<img src="${s.docBack}">
-</div>`
-:'<div class="muted">Verso não cadastrado.</div>'
-}
-
-</div>
-
-
-<h3>
-Histórico de vendas
-</h3>
-
-<table>
-
-<tr>
-<th>Venda</th>
-<th>Produto</th>
-<th>Valor</th>
-<th>Parcelas</th>
-</tr>
-
-${
-sales.map(v=>
-
-`<tr>
-
-<td>${esc(v.id)}</td>
-
-<td>${esc(v.product)}</td>
-
-<td>${money(v.value)}</td>
-
-<td>${v.n}</td>
-
-</tr>`
-
-).join('')
-}
-
-</table>
-
-
-<br>
-
-<button class="btn secondary"
-onclick="closeModal()">
-Fechar
-</button>
-
-`;
-
-
-document.getElementById('modal').style.display='flex';
-
-}
-
+/* =========================
+   ABRIR VENDA
+========================= */
 
 function viewSale(id){
 
-let s=db.sales.find(x=>x.id===id);
-
-if(!s)return;
-
-
-let address=
-[
-s.street,
-s.number,
-s.neighborhood,
-s.city,
-s.cep
-]
-.filter(Boolean)
-.join(', ');
+  const sale =
+    db.sales.find(
+      function(item){
+        return item.id === id;
+      }
+    );
 
 
-document.getElementById('modalContent').innerHTML=
+  if(!sale){
+    return;
+  }
 
-`
 
-<h2>
-${esc(s.id)} — ${esc(s.client)}
-</h2>
+  const address = [
 
-<div class="client-header">
+    sale.street,
+    sale.number,
+    sale.complement,
+    sale.neighborhood,
+    sale.city,
+    sale.state,
+    sale.cep
 
-<b>CPF:</b>
-${esc(s.cpf||'-')}
+  ]
+  .filter(Boolean)
+  .join(", ");
 
-<br>
 
-<b>Nascimento:</b>
-${
-s.birth
-?
-new Date(s.birth+'T12:00:00').toLocaleDateString('pt-BR')
-:'-'
+  const birth =
+    sale.birthDate
+    ? new Date(
+        sale.birthDate +
+        "T00:00:00"
+      ).toLocaleDateString("pt-BR")
+    : "-";
+
+
+  let html = `
+
+    <h2>
+      ${esc(sale.id)}
+    </h2>
+
+    <p>
+
+      <b>Cliente:</b>
+      ${esc(sale.client)}
+
+      <br>
+
+      <b>CPF:</b>
+      ${esc(sale.cpf || "-")}
+
+      <br>
+
+      <b>WhatsApp:</b>
+      ${esc(sale.phone || "-")}
+
+      <br>
+
+      <b>Nascimento:</b>
+      ${birth}
+
+      <br>
+
+      <b>Endereço:</b>
+      ${esc(address || "-")}
+
+    </p>
+
+
+    <p>
+
+      <b>Produto:</b>
+      ${esc(sale.product)}
+
+      <br>
+
+      <b>IMEI:</b>
+      ${esc(sale.imei || "-")}
+
+    </p>
+
+  `;
+
+
+  if(sale.documentPhoto){
+
+    html += `
+
+      <p>
+
+        <b>Documento:</b>
+
+        <br>
+
+        <img
+          src="${sale.documentPhoto}"
+          class="modal-document"
+        >
+
+      </p>
+
+    `;
+
+  }
+
+
+  html += `
+
+    <h3>
+      Parcelas
+    </h3>
+
+    <div class="table-wrap">
+
+    <table>
+
+      <tr>
+
+        <th>#</th>
+        <th>Vencimento</th>
+        <th>Valor</th>
+        <th>Status</th>
+
+      </tr>
+
+  `;
+
+
+  sale.inst.forEach(
+    function(row,index){
+
+      const statusClass =
+        row.status === "Pago"
+        ? "paid"
+        : row.status === "Vencida"
+        ? "late"
+        : "open";
+
+
+      html += `
+
+        <tr>
+
+          <td>
+            ${index + 1}
+          </td>
+
+          <td>
+            ${new Date(row.d)
+              .toLocaleDateString("pt-BR")}
+          </td>
+
+          <td>
+            ${money(row.value)}
+          </td>
+
+          <td>
+
+            <button
+              type="button"
+              class="btn secondary"
+              onclick="togglePayment('${sale.id}',${index})"
+            >
+
+              <span class="pill ${statusClass}">
+                ${esc(row.status)}
+              </span>
+
+            </button>
+
+          </td>
+
+        </tr>
+
+      `;
+
+    }
+  );
+
+
+  html += `
+
+    </table>
+
+    </div>
+
+    <br>
+
+    <button
+      type="button"
+      class="btn secondary"
+      onclick="closeModal()"
+    >
+      Fechar
+    </button>
+
+  `;
+
+
+  document.getElementById(
+    "modalContent"
+  ).innerHTML = html;
+
+
+  document.getElementById(
+    "modal"
+  ).style.display = "flex";
+
 }
 
-<br>
 
-<b>WhatsApp:</b>
-${esc(s.phone||'-')}
+/* =========================
+   PAGAMENTO
+========================= */
 
-<br>
+function togglePayment(id,index){
 
-<b>Endereço:</b>
-${esc(address||'-')}
-
-<br>
-
-<b>Documento:</b>
-${esc(s.docType||'-')}
-${s.docNumber?' — '+esc(s.docNumber):''}
-
-</div>
+  const sale =
+    db.sales.find(
+      function(item){
+        return item.id === id;
+      }
+    );
 
 
-<p>
-
-<b>Produto:</b>
-${esc(s.product)}
-
-<br>
-
-<b>IMEI:</b>
-${esc(s.imei||'não informado')}
-
-</p>
+  if(!sale){
+    return;
+  }
 
 
-<h3>
-Parcelas
-</h3>
-
-<table>
-
-<tr>
-<th>#</th>
-<th>Vencimento</th>
-<th>Valor</th>
-<th>Status</th>
-</tr>
-
-${
-s.inst.map((r,i)=>{
-
-let st=currentStatus(r);
-
-r.status=st;
-
-return `
-
-<tr>
-
-<td>${i+1}</td>
-
-<td>
-${new Date(r.d).toLocaleDateString('pt-BR')}
-</td>
-
-<td>
-${money(r.value)}
-</td>
-
-<td>
-
-<button
-class="btn ${st==='Pago'?'secondary':st==='Vencida'?'danger':'primary'}"
-onclick="togglePayment('${s.id}',${i})">
-
-${st}
-
-</button>
-
-</td>
-
-</tr>
-
-`;
-
-}).join('')
-}
-
-</table>
+  const row =
+    sale.inst[index];
 
 
-<br>
+  if(row.status === "Pago"){
 
-<div class="doc-preview">
+    row.status = "A vencer";
 
-${
-s.docFront
-?
-`<div>
-<div class="muted">Documento — frente</div>
-<img src="${s.docFront}">
-</div>`
-:''
-}
+  }else{
 
-${
-s.docBack
-?
-`<div>
-<div class="muted">Documento — verso</div>
-<img src="${s.docBack}">
-</div>`
-:''
-}
+    row.status = "Pago";
 
-</div>
+  }
 
 
-<br>
+  saveDB();
 
-<button class="btn secondary"
-onclick="closeModal()">
-Fechar
-</button>
-
-`;
-
-
-document.getElementById('modal').style.display='flex';
+  viewSale(id);
 
 }
 
 
-function togglePayment(id,i){
-
-let s=db.sales.find(x=>x.id===id);
-
-if(!s)return;
-
-s.inst[i].status=
-s.inst[i].status==='Pago'
-?
-'A vencer'
-:
-'Pago';
-
-saveDB();
-
-viewSale(id);
-
-}
-
+/* =========================
+   MODAL
+========================= */
 
 function closeModal(){
 
-document.getElementById('modal').style.display='none';
+  document.getElementById(
+    "modal"
+  ).style.display = "none";
+
+}
+
+
+document
+  .getElementById("modal")
+  .addEventListener(
+    "click",
+    function(event){
+
+      if(
+        event.target.id === "modal"
+      ){
+
+        closeModal();
+
+      }
+
+    }
+  );
+
+
+/* =========================
+   CONFIGURAÇÕES
+========================= */
+
+function loadSettings(){
+
+  document.getElementById(
+    "setAdvance"
+  ).value =
+    db.settings.advance;
+
+
+  document.getElementById(
+    "setFine"
+  ).value =
+    db.settings.fine;
+
+
+  document.getElementById(
+    "setInterest"
+  ).value =
+    db.settings.interest;
+
+
+  document.getElementById(
+    "setStore"
+  ).value =
+    db.settings.store;
+
+
+  document.getElementById(
+    "sAdvanceRate"
+  ).value =
+    db.settings.advance;
+
+
+  document.getElementById(
+    "sFine"
+  ).value =
+    db.settings.fine;
+
+
+  document.getElementById(
+    "sInterest"
+  ).value =
+    db.settings.interest;
 
 }
 
 
 function saveSettings(){
 
-db.settings.advance=
-+document.getElementById('setAdvance').value;
+  db.settings.advance =
+    Number(
+      document.getElementById(
+        "setAdvance"
+      ).value
+    ) || 0;
 
-db.settings.fine=
-+document.getElementById('setFine').value;
 
-db.settings.interest=
-+document.getElementById('setInterest').value;
+  db.settings.fine =
+    Number(
+      document.getElementById(
+        "setFine"
+      ).value
+    ) || 0;
 
-db.settings.store=
-document.getElementById('setStore').value;
 
-saveDB();
+  db.settings.interest =
+    Number(
+      document.getElementById(
+        "setInterest"
+      ).value
+    ) || 0;
 
-document.getElementById('sAdvanceRate').value=
-db.settings.advance;
 
-document.getElementById('sFine').value=
-db.settings.fine;
+  db.settings.store =
+    document.getElementById(
+      "setStore"
+    ).value.trim() ||
+    "WM Eletrônicos";
 
-document.getElementById('sInterest').value=
-db.settings.interest;
 
-toast('Configurações salvas');
+  document.getElementById(
+    "sAdvanceRate"
+  ).value =
+    db.settings.advance;
+
+
+  document.getElementById(
+    "sFine"
+  ).value =
+    db.settings.fine;
+
+
+  document.getElementById(
+    "sInterest"
+  ).value =
+    db.settings.interest;
+
+
+  saveDB();
+
+  toast(
+    "Configurações salvas."
+  );
 
 }
 
 
 function resetData(){
 
-if(confirm('Apagar todas as vendas deste navegador?')){
-
-db={
-sales:[],
-settings:{
-advance:1.7,
-fine:2,
-interest:1,
-store:'WM Eletrônicos'
-}
-};
-
-saveDB();
-
-toast('Dados apagados');
-
-}
-
-}
+  const ok =
+    confirm(
+      "Apagar todas as vendas deste navegador?"
+    );
 
 
-function globalSearch(q){
+  if(!ok){
+    return;
+  }
 
-q=q.toLowerCase();
 
-if(!q)return;
+  db =
+    JSON.parse(
+      JSON.stringify(DEFAULT_DB)
+    );
 
-let s=db.sales.find(x=>
 
-(
-x.client+
-x.product+
-x.imei+
-x.id+
-x.cpf
-)
-.toLowerCase()
-.includes(q)
+  localStorage.removeItem(KEY);
 
-);
 
-if(s){
+  loadSettings();
 
-showPage('sales');
+  refresh();
 
-}
+  toast(
+    "Dados apagados."
+  );
 
 }
 
 
-document.getElementById('setAdvance').value=
-db.settings.advance;
+/* =========================
+   BUSCA
+========================= */
 
-document.getElementById('setFine').value=
-db.settings.fine;
+function globalSearch(text){
 
-document.getElementById('setInterest').value=
-db.settings.interest;
-
-document.getElementById('setStore').value=
-db.settings.store;
-
-document.getElementById('sAdvanceRate').value=
-db.settings.advance;
-
-document.getElementById('sFine').value=
-db.settings.fine;
-
-document.getElementById('sInterest').value=
-db.settings.interest;
+  const q =
+    text.trim().toLowerCase();
 
 
-refresh();
+  if(!q){
+
+    return;
+
+  }
+
+
+  const sale =
+    db.sales.find(
+      function(item){
+
+        return (
+
+          String(item.client || "")
+            .toLowerCase()
+            .includes(q)
+
+          ||
+
+          String(item.product || "")
+            .toLowerCase()
+            .includes(q)
+
+          ||
+
+          String(item.imei || "")
+            .toLowerCase()
+            .includes(q)
+
+          ||
+
+          String(item.id || "")
+            .toLowerCase()
+            .includes(q)
+
+          ||
+
+          String(item.cpf || "")
+            .toLowerCase()
+            .includes(q)
+
+        );
+
+      }
+    );
+
+
+  if(sale){
+
+    showPage("sales");
+
+  }
+
+}
+
+
+/* =========================
+   INICIALIZAÇÃO
+========================= */
+
+function init(){
+
+  setupNavigation();
+
+  setupDocumentPhoto();
+
+  loadSettings();
+
+  document
+    .getElementById("simulateBtn")
+    .addEventListener(
+      "click",
+      simulate
+    );
+
+
+  document
+    .getElementById("clearBtn")
+    .addEventListener(
+      "click",
+      clearSale
+    );
+
+
+  document
+    .getElementById("saveSettingsBtn")
+    .addEventListener(
+      "click",
+      saveSettings
+    );
+
+
+  document
+    .getElementById("resetBtn")
+    .addEventListener(
+      "click",
+      resetData
+    );
+
+
+  document
+    .getElementById("globalSearch")
+    .addEventListener(
+      "input",
+      function(){
+
+        globalSearch(
+          this.value
+        );
+
+      }
+    );
+
+
+  refresh();
+
+}
+
+
+/* GARANTE QUE O HTML JÁ FOI CARREGADO */
+
+if(
+  document.readyState === "loading"
+){
+
+  document.addEventListener(
+    "DOMContentLoaded",
+    init
+  );
+
+}else{
+
+  init();
+
+}
 
 </script>
 
