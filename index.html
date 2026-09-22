@@ -5378,7 +5378,574 @@ else {
 }
 
 </script>
+<!-- =====================================================
+     TABELA DE CREDIÁRIO WM
+     ===================================================== -->
 
+<style>
+
+.wm-credit-table-btn{
+  position:fixed;
+  right:18px;
+  bottom:18px;
+  z-index:9998;
+  border:0;
+  border-radius:14px;
+  padding:14px 18px;
+  background:#111;
+  color:#fff;
+  font-weight:800;
+  font-size:14px;
+  box-shadow:0 8px 25px rgba(0,0,0,.25);
+  cursor:pointer;
+}
+
+.wm-credit-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.55);
+  z-index:9999;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:15px;
+}
+
+.wm-credit-modal{
+  width:min(1100px,100%);
+  max-height:92vh;
+  overflow:auto;
+  background:#fff;
+  color:#111;
+  border-radius:18px;
+  padding:20px;
+  box-shadow:0 20px 60px rgba(0,0,0,.35);
+}
+
+.wm-credit-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:15px;
+}
+
+.wm-credit-head h2{
+  margin:0;
+  font-size:20px;
+}
+
+.wm-credit-close{
+  border:0;
+  background:#eee;
+  width:38px;
+  height:38px;
+  border-radius:10px;
+  font-size:22px;
+  cursor:pointer;
+}
+
+.wm-credit-rules{
+  background:#f5f5f5;
+  border-radius:12px;
+  padding:12px;
+  margin-bottom:15px;
+  font-size:13px;
+}
+
+.wm-credit-search{
+  width:100%;
+  padding:13px;
+  border:1px solid #ddd;
+  border-radius:10px;
+  font-size:16px;
+  margin-bottom:15px;
+}
+
+.wm-credit-table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:13px;
+}
+
+.wm-credit-table th{
+  background:#111;
+  color:#fff;
+  padding:10px 7px;
+  text-align:center;
+  position:sticky;
+  top:0;
+  z-index:2;
+}
+
+.wm-credit-table td{
+  border-bottom:1px solid #eee;
+  padding:9px 7px;
+  text-align:center;
+  white-space:nowrap;
+}
+
+.wm-credit-table tr:hover{
+  background:#f7f7f7;
+}
+
+.wm-credit-table .avista{
+  font-weight:800;
+}
+
+.wm-credit-table .entrada{
+  font-weight:800;
+}
+
+.wm-credit-table .parcela{
+  font-weight:800;
+}
+
+.wm-credit-note{
+  margin-top:15px;
+  font-size:11px;
+  color:#666;
+  line-height:1.5;
+}
+
+@media(max-width:700px){
+
+  .wm-credit-modal{
+    padding:14px;
+  }
+
+  .wm-credit-table{
+    font-size:11px;
+  }
+
+  .wm-credit-table th,
+  .wm-credit-table td{
+    padding:7px 5px;
+  }
+
+  .wm-credit-table-wrap{
+    overflow-x:auto;
+  }
+
+  .wm-credit-table{
+    min-width:900px;
+  }
+
+}
+
+</style>
+
+
+<button
+  type="button"
+  class="wm-credit-table-btn"
+  onclick="wmOpenCreditTable()">
+
+  📊 Tabela de Crediário
+
+</button>
+
+
+<script>
+
+function wmMoney(value){
+
+  return Number(value || 0).toLocaleString(
+    "pt-BR",
+    {
+      style:"currency",
+      currency:"BRL"
+    }
+  );
+
+}
+
+
+function wmCreditCalc(precoAvista, percentual){
+
+  /*
+    6x mensal:
+    +20% sobre o preço à vista
+
+    12x quinzenal:
+    +30% sobre o preço à vista
+
+    Entrada padrão:
+    30%
+
+    Limite máximo financiado:
+    R$ 2.000
+  */
+
+  const total =
+    precoAvista * (1 + percentual);
+
+  let entrada =
+    total * 0.30;
+
+  let saldo =
+    total - entrada;
+
+  /*
+    Se o saldo passar de R$ 2.000,
+    aumenta a entrada.
+  */
+
+  if(saldo > 2000){
+
+    entrada =
+      total - 2000;
+
+    saldo = 2000;
+
+  }
+
+  return {
+    total,
+    entrada,
+    saldo
+  };
+
+}
+
+
+function wmOpenCreditTable(){
+
+  if(document.getElementById("wmCreditOverlay")){
+    return;
+  }
+
+  const overlay =
+    document.createElement("div");
+
+  overlay.id =
+    "wmCreditOverlay";
+
+  overlay.className =
+    "wm-credit-overlay";
+
+  overlay.innerHTML = `
+
+    <div
+      class="wm-credit-modal"
+      onclick="event.stopPropagation()">
+
+      <div class="wm-credit-head">
+
+        <h2>
+          📊 Tabela de Crediário WM
+        </h2>
+
+        <button
+          class="wm-credit-close"
+          onclick="wmCloseCreditTable()">
+
+          ×
+
+        </button>
+
+      </div>
+
+
+      <div class="wm-credit-rules">
+
+        <b>REGRAS WM</b><br><br>
+
+        • Entrada padrão: <b>30%</b><br>
+
+        • 6 pagamentos mensais:
+        <b>+20% sobre o preço à vista</b><br>
+
+        • 12 pagamentos quinzenais:
+        <b>+30% sobre o preço à vista</b><br>
+
+        • Limite financiado:
+        <b>R$ 2.000,00</b><br>
+
+        • Quando o saldo ultrapassar R$ 2.000,
+        a entrada aumenta automaticamente.
+
+      </div>
+
+
+      <input
+        id="wmCreditSearch"
+        class="wm-credit-search"
+        type="number"
+        placeholder="Digite o preço à vista para localizar..."
+        oninput="wmFilterCreditTable()">
+
+
+      <div class="wm-credit-table-wrap">
+
+        <table class="wm-credit-table">
+
+          <thead>
+
+            <tr>
+
+              <th rowspan="2">
+                À vista
+              </th>
+
+              <th colspan="3">
+                6x mensal
+              </th>
+
+              <th colspan="3">
+                12x quinzenal
+              </th>
+
+            </tr>
+
+            <tr>
+
+              <th>
+                Total
+              </th>
+
+              <th>
+                Entrada
+              </th>
+
+              <th>
+                Parcela
+              </th>
+
+              <th>
+                Total
+              </th>
+
+              <th>
+                Entrada
+              </th>
+
+              <th>
+                Parcela
+              </th>
+
+            </tr>
+
+          </thead>
+
+          <tbody id="wmCreditTableBody">
+          </tbody>
+
+        </table>
+
+      </div>
+
+
+      <div class="wm-credit-note">
+
+        * Valores calculados conforme as regras comerciais
+        configuradas no sistema. A entrada mínima padrão é de
+        30%, podendo ser maior para manter o saldo financiado
+        dentro do limite de R$ 2.000,00.
+
+      </div>
+
+    </div>
+
+  `;
+
+
+  overlay.addEventListener(
+    "click",
+    function(e){
+
+      if(e.target === overlay){
+
+        wmCloseCreditTable();
+
+      }
+
+    }
+  );
+
+
+  document.body.appendChild(overlay);
+
+  wmBuildCreditTable();
+
+}
+
+
+function wmBuildCreditTable(){
+
+  const tbody =
+    document.getElementById(
+      "wmCreditTableBody"
+    );
+
+  if(!tbody) return;
+
+  let html = "";
+
+  /*
+    Tabela de R$ 1.000 até R$ 5.000,
+    de R$ 100 em R$ 100.
+  */
+
+  for(
+    let preco = 1000;
+    preco <= 5000;
+    preco += 100
+  ){
+
+    const mensal =
+      wmCreditCalc(
+        preco,
+        0.20
+      );
+
+    const quinzenal =
+      wmCreditCalc(
+        preco,
+        0.30
+      );
+
+
+    html += `
+
+      <tr
+        data-credit-price="${preco}">
+
+        <td class="avista">
+
+          ${wmMoney(preco)}
+
+        </td>
+
+
+        <!-- 6x -->
+
+        <td>
+
+          ${wmMoney(mensal.total)}
+
+        </td>
+
+        <td class="entrada">
+
+          ${wmMoney(mensal.entrada)}
+
+        </td>
+
+        <td class="parcela">
+
+          6x ${wmMoney(
+            mensal.saldo / 6
+          )}
+
+        </td>
+
+
+        <!-- 12x -->
+
+        <td>
+
+          ${wmMoney(quinzenal.total)}
+
+        </td>
+
+        <td class="entrada">
+
+          ${wmMoney(quinzenal.entrada)}
+
+        </td>
+
+        <td class="parcela">
+
+          12x ${wmMoney(
+            quinzenal.saldo / 12
+          )}
+
+        </td>
+
+      </tr>
+
+    `;
+
+  }
+
+  tbody.innerHTML =
+    html;
+
+}
+
+
+function wmFilterCreditTable(){
+
+  const input =
+    document.getElementById(
+      "wmCreditSearch"
+    );
+
+  if(!input) return;
+
+  const value =
+    Number(input.value || 0);
+
+
+  document
+    .querySelectorAll(
+      "#wmCreditTableBody tr"
+    )
+    .forEach(function(row){
+
+      const price =
+        Number(
+          row.getAttribute(
+            "data-credit-price"
+          )
+        );
+
+
+      if(!value){
+
+        row.style.display = "";
+
+        return;
+
+      }
+
+
+      /*
+        Mostra o valor digitado
+        e os valores próximos.
+      */
+
+      const difference =
+        Math.abs(price - value);
+
+
+      row.style.display =
+        difference <= 100
+          ? ""
+          : "none";
+
+    });
+
+}
+
+
+function wmCloseCreditTable(){
+
+  const overlay =
+    document.getElementById(
+      "wmCreditOverlay"
+    );
+
+  if(overlay){
+
+    overlay.remove();
+
+  }
+
+}
+
+</script>
 </body>
 
 </html>
