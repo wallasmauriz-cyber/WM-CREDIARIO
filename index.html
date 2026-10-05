@@ -5878,10 +5878,10 @@ function wmOpenCreditTable(){
         • Entrada padrão: <b>30%</b><br>
 
         • 6 pagamentos mensais:
-        <b>+20% sobre o preço à vista</b><br>
+        <b>+30% sobre o preço à vista</b><br>
 
         • 12 pagamentos quinzenais:
-        <b>+30% sobre o preço à vista</b><br>
+        <b>+25% sobre o preço à vista</b><br>
 
         • Limite financiado:
         <b>R$ 2.000,00</b><br>
@@ -6020,13 +6020,13 @@ function wmBuildCreditTable(){
     const mensal =
       wmCreditCalc(
         preco,
-        0.20
+        0.30
       );
 
     const quinzenal =
       wmCreditCalc(
         preco,
-        0.30
+        0.25
       );
 
 
@@ -6174,8 +6174,8 @@ function wmCloseCreditTable(){
 /* ==========================================
    WM CREDIÁRIO — REGRAS AUTOMÁTICAS
    30% ENTRADA
-   20% MENSAL
-   30% QUINZENAL
+   30% MENSAL
+   25% QUINZENAL
    LIMITE R$ 2.000 FINANCIADO
    ========================================== */
 
@@ -6204,14 +6204,14 @@ function wmCloseCreditTable(){
 
     /*
       REGRA:
-      Mensal = +20%
-      Quinzenal = +30%
+   Mensal = +30%
+Quinzenal = +25%
     */
 
-    let acrescimo = 0.20;
+  let acrescimo = 0.30;
 
     if(freq === "biweekly"){
-      acrescimo = 0.30;
+   acrescimo = 0.25;
     }
 
     /*
